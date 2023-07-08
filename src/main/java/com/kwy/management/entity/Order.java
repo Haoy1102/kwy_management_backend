@@ -1,0 +1,52 @@
+package com.kwy.management.entity;
+
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+/**
+ * @author haoy
+ * @description
+ * @date 2023/7/8 15:14
+ */
+@Data
+public class Order implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private Long id;
+
+    private String orderId;
+
+    private String customer;
+
+    private String people;
+
+    private String phone;
+
+    private String address;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDate createDate;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    private Integer status;
+
+    private Double amount;
+
+    private Integer deliveryProgress;
+
+    private Double totalPayment;
+
+    private String note;
+
+    @TableLogic  //逻辑删除 1删除 0正常
+    private Integer deleted;
+}
