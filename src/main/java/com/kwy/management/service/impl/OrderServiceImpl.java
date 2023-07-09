@@ -49,6 +49,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 Order::getCustomer,order.getCustomer());
         lqw.like(Strings.isNotEmpty(order.getAddress()),
                 Order::getAddress,order.getAddress());
+        lqw.like(Strings.isNotEmpty(order.getOrderId()),
+                Order::getOrderId,order.getOrderId());
+        lqw.orderByDesc(Order::getCreateTime);
         IPage page = new Page(currentPage, pageSize);
         orderMapper.selectPage(page,lqw);
         return page;

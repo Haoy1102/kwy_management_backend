@@ -27,15 +27,19 @@ public class Order implements Serializable {
 
     private String people;
 
+    private String content;
+
     private String phone;
 
     private String address;
 
-    @TableField(fill = FieldFill.INSERT)
     private LocalDate createDate;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
     private Integer status;
 
