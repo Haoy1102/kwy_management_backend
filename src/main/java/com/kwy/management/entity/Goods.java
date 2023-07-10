@@ -12,36 +12,30 @@ import java.time.LocalDateTime;
 /**
  * @author haoy
  * @description
- * @date 2023/7/8 15:14
+ * @date 2023/7/10 11:49
  */
 @Data
-public class Order implements Serializable {
+public class Goods implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    private String orderId;
+    private Long materialInfoId;
 
-    private String customer;
+    private Long goodsId;
 
-    private String people;
+    private String category;
 
-    private String content;
+    private String supplier;
 
-    private String phone;
+    private Double number;
 
-    private String address;
+    private String location;
 
-    private LocalDate createDate;
+    private LocalDate producedDate;
 
     private Integer status;
-
-    private Double amount;
-
-    private Integer deliveryProgress;
-
-    private Double totalPayment;
 
     private String note;
 
@@ -53,4 +47,5 @@ public class Order implements Serializable {
 
     @TableLogic  //逻辑删除 1删除 0正常
     private Integer deleted;
+
 }

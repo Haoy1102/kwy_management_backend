@@ -12,36 +12,35 @@ import java.time.LocalDateTime;
 /**
  * @author haoy
  * @description
- * @date 2023/7/8 15:14
+ * @date 2023/7/10 12:04
  */
 @Data
-public class Order implements Serializable {
+public class PurchaseRecord implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    private String orderId;
+    private Long materialInfoId;
+//    private Long goodsId;
 
-    private String customer;
+    private String category;
 
-    private String people;
+    private String supplier;
 
-    private String content;
+    private Double number;
 
-    private String phone;
+    private Double price;
 
-    private String address;
+    private Double totalAmount;
 
-    private LocalDate createDate;
+    private String location;
+
+    private LocalDate producedDate;
 
     private Integer status;
 
-    private Double amount;
-
-    private Integer deliveryProgress;
-
-    private Double totalPayment;
+    private LocalDate createDate;
 
     private String note;
 

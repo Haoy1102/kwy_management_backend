@@ -6,42 +6,27 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
  * @author haoy
  * @description
- * @date 2023/7/8 15:14
+ * @date 2023/7/10 11:43
  */
 @Data
-public class Order implements Serializable {
+public class MaterialInfo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    private String orderId;
+    private String category;
 
-    private String customer;
+    private String supplier;
 
-    private String people;
+    private Double defaultPrice;
 
-    private String content;
-
-    private String phone;
-
-    private String address;
-
-    private LocalDate createDate;
-
-    private Integer status;
-
-    private Double amount;
-
-    private Integer deliveryProgress;
-
-    private Double totalPayment;
+    private Double latestPrice;
 
     private String note;
 
@@ -53,4 +38,5 @@ public class Order implements Serializable {
 
     @TableLogic  //逻辑删除 1删除 0正常
     private Integer deleted;
+
 }
