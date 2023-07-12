@@ -16,6 +16,9 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * @author haoy
  * @description
@@ -55,5 +58,23 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         IPage page = new Page(currentPage, pageSize);
         orderMapper.selectPage(page,lqw);
         return page;
+    }
+
+    @Override
+    public List<Order> getOrdersOneYearByCustomerId(Long customerId) {
+
+        // 获取当前日期时间
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        // 计算一年前的日期时间
+        LocalDateTime oneYearAgo = currentDateTime.minusYears(1);
+
+        //获取一年内所有的订单数据
+        LambdaQueryWrapper<Order> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(Order::getCustomerId, customerId)
+                .ge(Order::getCreateTime, oneYearAgo)
+                .le(Order::getCreateTime, currentDateTime);
+
+        return orderMapper.selectList(lqw);
     }
 }

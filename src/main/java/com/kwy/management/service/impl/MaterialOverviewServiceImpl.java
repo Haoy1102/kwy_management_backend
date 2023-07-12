@@ -29,6 +29,7 @@ public class MaterialOverviewServiceImpl extends ServiceImpl<MatertialOverviewMa
         lqw.like(Strings.isNotEmpty(overview.getCategory()),
                 MaterialOverview::getCategory,overview.getCategory());
         IPage page = new Page(currentPage, pageSize);
+        lqw.orderByDesc(MaterialOverview::getUpdateTime);
         overviewMapper.selectPage(page, lqw);
         return page;
     }

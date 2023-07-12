@@ -1,4 +1,4 @@
-package com.kwy.management.entity;
+package com.kwy.management.dto;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -12,38 +12,37 @@ import java.time.LocalDateTime;
 /**
  * @author haoy
  * @description
- * @date 2023/7/8 15:14
+ * @date 2023/7/11 12:40
  */
 @Data
-public class Order implements Serializable {
+public class GoodsOutForm implements Serializable {
+
+    public static final int OPERATE_IN = 1;
+    public static final int OPERATE_OUT = 2;
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    private String orderId;
+    private Long materialInfoId;
 
-    private Long customerId;
+    private Long goodsId;
 
-    private String customer;
+    private String category;
 
-    private String people;
+    private String supplier;
 
-    private String content;
+    private Double number;
 
-    private String phone;
+    private Double operateNumber;
 
-    private String address;
+    private Integer operateType = OPERATE_OUT;
 
-    private LocalDate createDate;
+    private String location;
+
+    private LocalDate producedDate;
 
     private Integer status;
-
-    private Double amount;
-
-    private Integer deliveryProgress;
-
-    private Double totalPayment;
 
     private String note;
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
+import com.kwy.management.dto.CustomerDto;
 import com.kwy.management.entity.Customer;
 import com.kwy.management.service.CustomerService;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +85,12 @@ public class CustomerController {
         return !customerList.isEmpty()?
                 R.success(customerList):
                 R.error("获取客户数据失败",Code.GET_ERR);
+    }
+
+    @GetMapping("/{id}")
+    public R<CustomerDto> getDetails(@PathVariable Long id){
+        CustomerDto customerDto = customerService.getDetails(id);
+        return R.success(customerDto);
     }
 
 

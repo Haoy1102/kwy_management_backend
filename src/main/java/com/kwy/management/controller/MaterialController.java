@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @author haoy
  * @description
@@ -85,5 +87,12 @@ public class MaterialController {
                 R.error("修改失败", Code.DELETE_ERR);
     }
 
+    @GetMapping()
+    public R<List<MaterialInfo>> getAll(){
+        List<MaterialInfo> list = materialInfoService.list();
+        return !list.isEmpty()?
+                R.success(list):
+                R.error("原料管理表没有信息,请先添加原料信息",Code.GET_ERR);
+    }
 
 }

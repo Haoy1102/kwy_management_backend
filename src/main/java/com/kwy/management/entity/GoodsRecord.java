@@ -20,6 +20,7 @@ public class GoodsRecord implements Serializable {
     // 1入库 2出库
     public static final int  OPERATE_IN= 1;
     public static final int  OPERATE_OUT= 2;
+    public static final int  OPERATE_IN_MANUAL= 3;
 
     private static final long serialVersionUID = 1L;
 

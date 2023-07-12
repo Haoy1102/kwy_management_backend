@@ -55,6 +55,11 @@ public class PaymentDetailServiceImpl extends ServiceImpl<PaymentDetailMapper, P
         return true;
     }
 
+    /**
+     * 将paymentDetail中的item删除，并更新order表的total_payment列
+     * @param id
+     * @return
+     */
     @Override
     @Transactional
     public Boolean deleteById(Long id) {

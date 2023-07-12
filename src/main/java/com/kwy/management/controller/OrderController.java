@@ -1,5 +1,6 @@
 package com.kwy.management.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
@@ -9,6 +10,9 @@ import com.kwy.management.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author haoy
@@ -54,14 +58,11 @@ public class OrderController {
         return R.success(page);
     }
 
-
-
-
-
-
-
-
-
+    @GetMapping("/customers/{customerId}")
+    public R<List<Order>> getOrdersOneYearByCustomerId(@PathVariable Long customerId){
+        List<Order> orders = orderService.getOrdersOneYearByCustomerId(customerId);
+        return R.success(orders);
+    }
 
 
 

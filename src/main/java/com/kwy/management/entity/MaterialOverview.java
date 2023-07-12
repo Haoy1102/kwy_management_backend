@@ -31,6 +31,8 @@ public class MaterialOverview implements Serializable {
 
     private Double value;
 
+    private Integer numberTag;
+
     private String note;
 
     @TableField(fill = FieldFill.INSERT)
