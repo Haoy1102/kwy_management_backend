@@ -2,8 +2,6 @@ package com.kwy.management.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.kwy.management.entity.Customer;
-import com.kwy.management.entity.Employee;
 import com.kwy.management.entity.MaterialInfo;
 
 /**

@@ -3,6 +3,7 @@ package com.kwy.management.entity;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -57,4 +58,6 @@ public class GoodsRecord implements Serializable {
     @TableLogic  //逻辑删除 1删除 0正常
     private Integer deleted;
 
+    @Version
+    private Integer version;
 }

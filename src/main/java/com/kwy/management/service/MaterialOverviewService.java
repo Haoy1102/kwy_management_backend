@@ -11,4 +11,6 @@ import com.kwy.management.entity.MaterialOverview;
  */
 public interface MaterialOverviewService extends IService<MaterialOverview> {
     IPage<MaterialOverview> getPage(int currentPage, int pageSize, MaterialOverview overview);
+
+    Double sumColumn(String columnName);
 }

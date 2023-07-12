@@ -34,14 +34,14 @@ public class PaymentDetailController {
     public R<Boolean> delete(@PathVariable Long id){
         return paymentDetailService.deleteById(id)?
                 R.success("删除成功"):
-                R.error("删除失败",Code.DELETE_ERR);
+                R.error("删除失败！数据不同步，自动刷新",Code.DELETE_ERR);
     }
 
     @PutMapping
     public R<Boolean> update(@RequestBody PaymentDetail paymentDetail){
         return paymentDetailService.updateById(paymentDetail)?
                 R.success("修改成功"):
-                R.error("修改失败",Code.UPDATE_ERR);
+                R.error("修改失败！数据不同步，自动刷新",Code.UPDATE_ERR);
     }
 
     @GetMapping("/{orderId}")

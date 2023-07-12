@@ -29,17 +29,27 @@ public class R<T> implements Serializable {
         r.code = Code.SUCCESS;
         return r;
     }
-    public static <T> R<T> success() {
-        R<T> r = new R<T>();
-        r.code = Code.SUCCESS;
-        return r;
-    }
     public static <T> R<T> success(String message) {
         R<T> r = new R<T>();
         r.message=message;
         r.code = Code.SUCCESS;
         return r;
     }
+
+    public static <T> R<T> success(T object,String message) {
+        R<T> r = new R<T>();
+        r.data = object;
+        r.message=message;
+        r.code = Code.SUCCESS;
+        return r;
+    }
+
+    public static <T> R<T> success() {
+        R<T> r = new R<T>();
+        r.code = Code.SUCCESS;
+        return r;
+    }
+
     //code非0为不成功的状态码
     public static <T> R<T> error(String message,Integer code) {
         R r = new R();

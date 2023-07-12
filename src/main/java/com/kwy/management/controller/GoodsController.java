@@ -40,7 +40,7 @@ public class GoodsController {
     public R<Boolean> inventoryEntry(@RequestBody Goods goods) {
         return goodsService.inventoryEntry(goods) ?
                 R.success("录入成功") :
-                R.error("录入失败，请检查数据。", Code.SAVE_ERR);
+                R.error("录入失败，请检查数据", Code.SAVE_ERR);
     }
 
     /**
@@ -51,7 +51,7 @@ public class GoodsController {
     public R<Boolean> delete(@PathVariable int id) {
         return goodsService.removeById(id) ?
                 R.success("删除成功") :
-                R.error("删除失败,数据不存在,自动刷新。", Code.DELETE_ERR);
+                R.error("删除失败！数据不同步，自动刷新", Code.DELETE_ERR);
     }
 
     /**
@@ -62,7 +62,7 @@ public class GoodsController {
     public R<Boolean> update(@RequestBody Goods goods) {
         return goodsService.updateById(goods) ?
                 R.success("修改成功!") :
-                R.error("修改失败!数据不存在，自动刷新页面", Code.UPDATE_ERR);
+                R.error("修改失败!数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
     /**
@@ -86,14 +86,14 @@ public class GoodsController {
     public R<Boolean> goodsOut(@RequestBody GoodsOutForm outForm){
         return goodsService.goodsOut(outForm)?
                 R.success("出库成功"):
-                R.error("出库失败,总览表不存在该数据",Code.SYSTEM_ERR);
+                R.error("出库失败！数据不同步，自动刷新",Code.SYSTEM_ERR);
     }
 
     @PutMapping("/records")
     public R<Boolean> update4GoodsRecord(@RequestBody GoodsRecord record) {
         return goodsRecordService.updateById(record) ?
                 R.success("修改成功!") :
-                R.error("修改失败!数据不存在，自动刷新页面", Code.UPDATE_ERR);
+                R.error("修改失败！数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
     @GetMapping("/records/{goodsId}")

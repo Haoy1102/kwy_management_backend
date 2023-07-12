@@ -44,15 +44,8 @@ public class LoginCheckFilter implements Filter {
 
 //        定义不需要处理的URI
         String[] urls = {
-                "/backend/**",
-                "/front/**",
-                "/employee/login",
-                "/employee/logout",
-                "/common/**",
-                "/user/sendMsg",
-                "/user/login",
-                "/api/employee/login",
-                "/api/**"
+                "/api/users/login",
+//                "/api/**"
         };
 
 //        2、判断本次情状是否需要处理
@@ -62,25 +55,13 @@ public class LoginCheckFilter implements Filter {
             chain.doFilter(request, response);
             return;
         }
-//      4-1、判断后台登灵状态，如果己登录，则直接放行
-        if (null != request.getSession().getAttribute("employee")) {
-            Long employeeId = (Long) request.getSession().getAttribute("employee");
-            log.info("用户已登陆，用户id为：{}", employeeId);
-//          long id = Thread.currentThread().getId();
-//          log.info("当前线程：{}",id);
-            BaseContext.setCurrentId(employeeId);
 
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // 检查是否存在登录状态的标识（例如token或session）
+//        4.检查是否存在登录状态的标识（例如token或session）
         if (isLoggedIn(request)) {
             // 已登录，放行请求
             chain.doFilter(request, response);
         } else {
-            // 未登录，可以进行相应的处理，例如重定向到登录页面
-//            response.sendRedirect("/login");
+            // 未登录
             log.info("用户未登陆");
             response.getWriter().write(JSON.toJSONString(R.error("身份认证超时，请重新登录", Code.LOGIN_FAILED)));
         }

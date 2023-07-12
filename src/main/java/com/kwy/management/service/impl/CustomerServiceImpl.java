@@ -123,7 +123,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         }
         customerDto.setTotalAmountDebt4Completed(totalAmount4Completed-totalPayment4Completed);
 
-//      5.总待支付金额    现存订单额度-已回金额
+//      5.总支付金额       现存订单已回金额
         Integer[] targetStatus5 = {1, 2, 3, 4}; // 目标订单状态
         double totalPayment = 0.0;
         for (Order order : orders) {
@@ -131,6 +131,9 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                 totalPayment += order.getTotalPayment();
             }
         }
+        customerDto.setTotalAmountPayment(totalPayment);
+
+//      6.总待支付金额    现存订单额度-已回金额
         double totalAmountDebt = customerDto.getTotalAmountCurrent() - totalPayment;
         customerDto.setTotalAmountDebt(totalAmountDebt);
 

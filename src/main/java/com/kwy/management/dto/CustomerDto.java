@@ -39,6 +39,8 @@ public class CustomerDto  implements Serializable {
 
     private Double totalAmountDebt4Completed;
 
+    private Double totalAmountPayment;
+
     private Double totalAmountDebt;
 
     @TableLogic  //逻辑删除 1删除 0正常

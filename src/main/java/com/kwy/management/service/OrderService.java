@@ -3,6 +3,7 @@ package com.kwy.management.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.kwy.management.dto.AccountDto;
 import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Order;
 
@@ -20,4 +21,6 @@ public interface OrderService extends IService<Order> {
     public IPage getPage(int currentPage, int pageSize, Order order);
 
     List<Order> getOrdersOneYearByCustomerId(Long customerId);
+
+    AccountDto getAcountSimple(Long month);
 }

@@ -48,7 +48,7 @@ public class CustomerController {
     public R<Boolean> delete(@PathVariable int id) {
         return customerService.removeById(id) ?
                 R.success("删除成功") :
-                R.error("删除失败,用户不存在,自动刷新。", Code.DELETE_ERR);
+                R.error("删除失败！数据不同步，自动刷新。", Code.DELETE_ERR);
     }
 
     /**
@@ -59,7 +59,7 @@ public class CustomerController {
     public R<Boolean> update(@RequestBody Customer customer) {
         return customerService.updateById(customer) ?
                 R.success("修改成功!") :
-                R.error("修改失败!用户不存在，自动刷新页面", Code.UPDATE_ERR);
+                R.error("修改失败!数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
     /**
