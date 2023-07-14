@@ -3,9 +3,10 @@ package com.kwy.management;
 import com.kwy.management.entity.User;
 import com.kwy.management.mapper.UserMapper;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.mindrot.jbcrypt.BCrypt;
 
 /**
  * @author haoy
@@ -14,9 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 @SpringBootTest
 public class UserTest {
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserMapper userMapper;
@@ -32,15 +30,19 @@ public class UserTest {
 //        user.setAccess("管理员");
 
         User user = new User();
-        user.setId(10000L);
-        user.setName("超级管理员");
-        user.setUsername("admin");
-        user.setPassword("123456");
+        user.setId(10002L);
+        user.setName("管理员2");
+        user.setUsername("kwyadmin2");
+        user.setPassword("bd4fo7u3v1x");
         user.setStatus(1);
         user.setAccess("管理员");
 
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+        String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        user.setPassword(hashedPassword);
+//        System.out.println("Hashed Password: " + hashedPassword);
+//        boolean passwordMatch = BCrypt.checkpw(user.getPassword(), hashedPassword);
+//        System.out.println("Password Match: " + passwordMatch);
+
 
         userMapper.updateById(user);
     }

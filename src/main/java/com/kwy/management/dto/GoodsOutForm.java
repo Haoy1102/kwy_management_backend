@@ -3,6 +3,7 @@ package com.kwy.management.dto;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -51,6 +52,15 @@ public class GoodsOutForm implements Serializable {
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
+
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateUser;
+
+    @Version
+    private Integer version;
 
     @TableLogic  //逻辑删除 1删除 0正常
     private Integer deleted;

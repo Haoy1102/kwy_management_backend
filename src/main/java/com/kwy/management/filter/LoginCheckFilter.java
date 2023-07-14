@@ -45,6 +45,9 @@ public class LoginCheckFilter implements Filter {
 //        定义不需要处理的URI
         String[] urls = {
                 "/api/users/login",
+                "/api/users/logout",
+                "/api/employees/login",
+                "/api/employees/login",
 //                "/api/**"
         };
 
@@ -57,8 +60,14 @@ public class LoginCheckFilter implements Filter {
         }
 
 //        4.检查是否存在登录状态的标识（例如token或session）
-        if (isLoggedIn(request)) {
+//        if (isLoggedIn(request)) {
+        if (null!=request.getSession().getAttribute("employeeId")){
             // 已登录，放行请求
+            Long employeeId = (Long) request.getSession().getAttribute("employeeId");
+            String employeeName=(String) request.getSession().getAttribute("employeeName");
+            log.info("用户{}已登陆", employeeName);
+            BaseContext.setCurrentId(employeeId);
+            BaseContext.setCurrentUserName(employeeName);
             chain.doFilter(request, response);
         } else {
             // 未登录

@@ -10,24 +10,26 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 员工实体
+ * @author haoy
+ * @description
+ * @date 2023/7/13 15:37
  */
 @Data
-public class User implements Serializable {
+public class Employee implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
-    private String name;
-
     private String username;
+
+    private String name;
 
     private String password;
 
-    private Integer status;
+    private String phone;
 
-    private String access;
+    private Integer status;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
@@ -46,4 +48,5 @@ public class User implements Serializable {
 
     @TableLogic  //逻辑删除 1删除 0正常
     private Integer deleted;
+
 }

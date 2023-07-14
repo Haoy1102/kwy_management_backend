@@ -32,15 +32,21 @@ public class Customer implements Serializable {
 
     private String note;
 
-    @TableLogic  //逻辑删除 1删除 0正常
-    private Integer deleted;
-
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private String updateUser;
+
     @Version
     private Integer version;
+
+    @TableLogic  //逻辑删除 1删除 0正常
+    private Integer deleted;
 }
