@@ -48,7 +48,7 @@ public class LoginCheckFilter implements Filter {
                 "/api/users/logout",
                 "/api/employees/login",
                 "/api/employees/login",
-//                "/api/**"
+                "/api/**"
         };
 
 //        2、判断本次情状是否需要处理

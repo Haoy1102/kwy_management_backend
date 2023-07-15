@@ -27,7 +27,7 @@ public class ProductOverview implements Serializable {
 
     private LocalDate producedDateLast;
 
-    private Double price_default;
+    private Double priceDefault;
 
     private String unit;
 
