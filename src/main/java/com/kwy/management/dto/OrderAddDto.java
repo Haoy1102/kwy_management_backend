@@ -1,22 +1,24 @@
-package com.kwy.management.entity;
+package com.kwy.management.dto;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.Version;
+import com.kwy.management.entity.OrderDetail;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author haoy
  * @description
- * @date 2023/7/8 15:14
+ * @date 2023/7/19 19:18
  */
 @Data
-public class Order implements Serializable {
+public class OrderAddDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,21 +50,6 @@ public class Order implements Serializable {
 
     private String note;
 
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
+    private List<OrderDetail> orderDetails;
 
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-
-    @TableField(fill = FieldFill.INSERT)
-    private Long createUser;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Long updateUser;
-
-    @Version
-    private Integer version;
-
-    @TableLogic  //逻辑删除 1删除 0正常
-    private Integer deleted;
 }

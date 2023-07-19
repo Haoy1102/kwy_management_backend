@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
+import com.kwy.management.dto.OrderAddDto;
 import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Order;
+import com.kwy.management.entity.OrderDetail;
+import com.kwy.management.service.OrderDetailService;
 import com.kwy.management.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +30,12 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private OrderDetailService orderDetailService;
+
     @PostMapping
-    public R<Boolean> save(@RequestBody Order order){
-        return orderService.addOrder(order)?
+    public R<Boolean> save(@RequestBody OrderAddDto orderAddDto){
+        return orderService.addOrder(orderAddDto)?
                 R.success("新增成功"):
                 R.error("新增失败,请检查数据", Code.SAVE_ERR);
     }
@@ -64,6 +70,13 @@ public class OrderController {
         return R.success(orders);
     }
 
+    @GetMapping("/orderDetails/{orderId}")
+    public R<List<OrderDetail>> getOrderDetailsByOrderId(@PathVariable String orderId){
+        LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderDetail::getOrderId,orderId);
+        List<OrderDetail> list = orderDetailService.list(queryWrapper);
+        return R.success(list);
+    }
 
 
 

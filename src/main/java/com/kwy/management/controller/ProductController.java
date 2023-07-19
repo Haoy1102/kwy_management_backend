@@ -1,5 +1,6 @@
 package com.kwy.management.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
@@ -10,6 +11,8 @@ import com.kwy.management.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author haoy
@@ -90,6 +93,14 @@ public class ProductController {
         return R.success(page);
     }
 
+    @GetMapping("/overviews")
+    public R<List<ProductOverview>> getAll4Overview() {
+        List<ProductOverview> list = productOverviewService.list();
+        return !list.isEmpty()?
+                R.success(list):
+                R.error("请先新增产品数据",Code.GET_ERR);
+    }
+
     @PostMapping("/overviews/produce")
     public R<Boolean> produce(@RequestBody Product product) {
         return productOverviewService.produce(product) ?
@@ -117,4 +128,11 @@ public class ProductController {
                 R.error("修改失败！数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
+    @GetMapping("/{productId}")
+    public R<List<Product>> getProductsByProductId(@PathVariable Long productId) {
+        LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Product::getProductId,productId);
+        List<Product> list = productService.list(queryWrapper);
+        return R.success(list);
+    }
 }

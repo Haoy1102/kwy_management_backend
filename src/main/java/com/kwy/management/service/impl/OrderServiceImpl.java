@@ -8,9 +8,12 @@ import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
 import com.kwy.management.dto.AccountDto;
 import com.kwy.management.dto.CustomerDto;
+import com.kwy.management.dto.OrderAddDto;
 import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Order;
+import com.kwy.management.entity.OrderDetail;
 import com.kwy.management.mapper.CustomerMapper;
+import com.kwy.management.mapper.OrderDetailMapper;
 import com.kwy.management.mapper.OrderMapper;
 import com.kwy.management.service.OrderService;
 import com.kwy.management.utils.OrderNumberGenerator;
@@ -18,6 +21,7 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -34,19 +38,38 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
+
     @Override
-    public Boolean addOrder(Order order) {
-        String tempcode = OrderNumberGenerator.generateOrderNumber("ZZZZZ");
-        order.setOrderId(tempcode);
-        if (orderMapper.insert(order) > 0) {
-            LambdaQueryWrapper<Order> lqw = new LambdaQueryWrapper<>();
-            lqw.eq(Order::getOrderId, order.getOrderId());
-            order = orderMapper.selectOne(lqw);
-            order.setOrderId(OrderNumberGenerator.generateOrderNumber(order.getId().toString()));
-            orderMapper.updateById(order);
-            return true;
+    @Transactional
+    public Boolean addOrder(OrderAddDto orderAddDto) {
+        /*
+            1. 订单表 计算金额等
+            2. 订单明细表 记录
+         */
+
+        List<OrderDetail> details = orderAddDto.getOrderDetails();
+        Order order = new Order();
+        BeanUtils.copyProperties(orderAddDto,order);
+
+        //        1. 订单表 计算金额等
+        double totalAmount = 0.0;
+        if (!details.isEmpty()){
+            for (OrderDetail orderDetail : details) {
+                totalAmount += orderDetail.getAmount();
+            }
         }
-        return false;
+        order.setAmount(totalAmount);
+        orderMapper.insert(order);
+        order.setOrderId(OrderNumberGenerator.generateOrderNumber(order.getId().toString()));
+        orderMapper.updateById(order);
+        //         2.订单明细表 记录
+        for (OrderDetail detail:details){
+            detail.setOrderId(order.getOrderId());
+            orderDetailMapper.insert(detail);
+        }
+        return true;
     }
 
     @Override

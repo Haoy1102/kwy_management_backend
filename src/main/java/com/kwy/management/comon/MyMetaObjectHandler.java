@@ -27,6 +27,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         metaObject.setValue("updateTime", LocalDateTime.now());
 //        Long currentId = BaseContext.getCurrentId();
         String currentUserName=BaseContext.getCurrentUserName();
+
         metaObject.setValue("createUser", currentUserName);
         metaObject.setValue("updateUser", currentUserName);
     }
