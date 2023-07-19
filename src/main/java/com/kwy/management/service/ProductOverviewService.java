@@ -15,4 +15,5 @@ public interface ProductOverviewService extends IService<ProductOverview> {
     IPage getPage(int currentPage, int pageSize, ProductOverview productOverview);
 
     boolean produce(Product product);
+
 }
