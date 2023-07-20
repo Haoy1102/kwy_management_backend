@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @author haoy
  * @description
@@ -83,21 +85,25 @@ public class ProductOverviewServiceImpl extends ServiceImpl<ProductOverviewMappe
 
     }
 
+    @Override
+    public boolean updateSelfById(Long productId) {
+        ProductOverview productOverview = productOverviewMapper.selectById(productId);
+        LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Product::getProductId,productId)
+                .gt(Product::getNumber, 0);;
 
+        List<Product> products = productMapper.selectList(wrapper);
 
+        Integer curNumber=0;
+        for(Product product:products){
+            curNumber+=product.getNumber();
+        }
+        productOverview.setNumber(curNumber);
+        productOverview.setValue(curNumber*productOverview.getPriceDefault());
 
-
-
-
-
-
-
-
-
-
-
-
-
+        productOverviewMapper.updateById(productOverview);
+        return true;
+    }
 
 
 }

@@ -131,7 +131,8 @@ public class ProductController {
     @GetMapping("/{productId}")
     public R<List<Product>> getProductsByProductId(@PathVariable Long productId) {
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Product::getProductId,productId);
+        queryWrapper.eq(Product::getProductId,productId)
+                .gt(Product::getNumber,0);
         List<Product> list = productService.list(queryWrapper);
         return R.success(list);
     }

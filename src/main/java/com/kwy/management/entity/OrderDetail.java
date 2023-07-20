@@ -20,6 +20,9 @@ public class OrderDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public static final int DELIVERED=1;
+    public static final int NOT_DELIVERED=0;
+
     private Long id;
 
     private String orderId;

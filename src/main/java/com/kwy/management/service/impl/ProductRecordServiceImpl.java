@@ -38,6 +38,7 @@ public class ProductRecordServiceImpl extends ServiceImpl<ProductRecordMapper, P
                 ProductRecord::getCustomer, record.getCustomer());
         lqw.like(Strings.isNotEmpty(record.getOrderId()),
                 ProductRecord::getOrderId, record.getOrderId());
+        lqw.orderByDesc(ProductRecord::getCreateTime);
         IPage page = new Page(currentPage, pageSize);
         productRecordMapper.selectPage(page, lqw);
         return page;

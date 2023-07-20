@@ -4,18 +4,25 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.kwy.management.entity.Product;
-import com.kwy.management.entity.ProductOverview;
-import com.kwy.management.entity.ProductRecord;
+import com.kwy.management.dto.OrderDetailsDeliverDto;
+import com.kwy.management.entity.*;
+import com.kwy.management.mapper.OrderMapper;
 import com.kwy.management.mapper.ProductMapper;
 import com.kwy.management.mapper.ProductOverviewMapper;
 import com.kwy.management.mapper.ProductRecordMapper;
 import com.kwy.management.service.ProductService;
+import com.sun.org.apache.xpath.internal.operations.Or;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author haoy
@@ -34,11 +41,14 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
     @Autowired
     private ProductRecordMapper productRecordMapper;
 
+    @Autowired
+    private OrderMapper orderMapper;
+
 
     @Override
     public IPage<Product> getPage(int currentPage, int pageSize, Product product) {
         LambdaQueryWrapper<Product> lqw = new LambdaQueryWrapper<>();
-        lqw.like(null !=product.getProductId(),
+        lqw.like(null != product.getProductId(),
                 Product::getProductId, product.getProductId());
 
         lqw.like(null != product.getBatchId(),
@@ -49,6 +59,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
                 Product::getProductName, product.getProductName());
         lqw.like(Strings.isNotEmpty(product.getProductCode()),
                 Product::getProductCode, product.getProductCode());
+        lqw.orderByDesc(Product::getCreateTime);
         IPage page = new Page(currentPage, pageSize);
         productMapper.selectPage(page, lqw);
         return page;
@@ -121,6 +132,92 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
 //        4.更新Product表
         productMapper.updateById(newProduct);
 
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean deliver(OrderDetailsDeliverDto orderDetailsDeliverDto) {
+        /*
+        1.Product表出货
+            1.1.产品表具体批次的数量计算
+            1.2.批次记录需要加上 其中有去向客户
+                1.2.1产品表更新
+         */
+        OrderDetail orderDetail = orderDetailsDeliverDto.getOrderDetail();
+        String orderId = orderDetail.getOrderId();
+        List<Product> products = orderDetailsDeliverDto.getProducts();
+        List<Product> selectedProducts = new ArrayList<>();
+
+        // 按照producedDate生产日期进行升序排序
+        Collections.sort(products, Comparator.comparing(Product::getProducedDate));
+
+//        1.1.产品表具体批次的数量计算
+        Integer targetNumber = orderDetail.getNumber();
+        Integer curNumber = 0;
+
+        for (Product product : products) {
+            // 已经找到足够数量的货物，停止遍历
+            if (curNumber >= targetNumber)
+                break;
+
+            Integer productNumber = product.getNumber();
+
+            if (productNumber <= (targetNumber - curNumber)) {
+                // 将整个货物添加到selectedProducts列表中
+                selectedProducts.add(product);
+                curNumber += productNumber;
+            } else {
+                // 当前货物数量大于剩余需要的数量，拆分货物
+                Integer remainingNumber = targetNumber - curNumber;
+
+                Product productOut = new Product();
+                BeanUtils.copyProperties(product, productOut);
+                productOut.setNumber(remainingNumber);
+                selectedProducts.add(productOut);
+
+                curNumber += remainingNumber;
+
+                break; // 停止遍历，已找到足够数量的货物
+            }
+        }
+        //没找到足够的货物 发货失败
+        if (curNumber < targetNumber)
+            return false;
+
+//        1.2.批次记录需要加上 其中有去向客户
+        for (Product selectProduct : selectedProducts) {
+            ProductRecord record = new ProductRecord();
+            BeanUtils.copyProperties(selectProduct, record);
+
+
+            for (Product originProduct : products) {
+                if (originProduct.getId().equals(selectProduct.getId())){
+
+                    record.setOperateType(ProductRecord.OPERATE_DELIVER);
+                    record.setOperateNumber(selectProduct.getNumber());
+                    record.setRemainNumber(originProduct.getNumber()-selectProduct.getNumber());
+                    record.setOriginNumber(originProduct.getNumber());
+
+                    //去向客户等信息
+                    record.setOrderId(orderId);
+
+                    //查找客户名称
+                    LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+                    wrapper.eq(Order::getOrderId,orderId);
+                    Order order = orderMapper.selectOne(wrapper);
+                    String customer = order.getCustomer();
+
+                    record.setCustomer(customer);
+                    record.setDeliveredDate(LocalDate.now());
+
+                    productRecordMapper.insert(record);
+//          1.2.1产品表更新
+                    originProduct.setNumber(originProduct.getNumber()-selectProduct.getNumber());
+                    productMapper.updateById(originProduct);
+                }
+            }
+        }
         return true;
     }
 }

@@ -5,16 +5,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
 import com.kwy.management.dto.OrderAddDto;
-import com.kwy.management.entity.Customer;
+import com.kwy.management.dto.OrderDetailsBatchDeliverDto;
+import com.kwy.management.dto.OrderDetailsDeliverDto;
 import com.kwy.management.entity.Order;
 import com.kwy.management.entity.OrderDetail;
 import com.kwy.management.service.OrderDetailService;
 import com.kwy.management.service.OrderService;
+import com.kwy.management.service.ProductOverviewService;
+import com.kwy.management.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -32,6 +35,12 @@ public class OrderController {
 
     @Autowired
     private OrderDetailService orderDetailService;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private ProductOverviewService productOverviewService;
 
     @PostMapping
     public R<Boolean> save(@RequestBody OrderAddDto orderAddDto){
@@ -76,6 +85,72 @@ public class OrderController {
         queryWrapper.eq(OrderDetail::getOrderId,orderId);
         List<OrderDetail> list = orderDetailService.list(queryWrapper);
         return R.success(list);
+    }
+
+    @PostMapping("/orderDetails/deliver")
+    @Transactional
+    public R<Boolean> orderDetailsDeliver(@RequestBody OrderDetailsDeliverDto deliverDto){
+        /*
+        1.Product表出货
+            1.1.产品表具体批次的数量计算
+            1.2.批次记录需要加上 其中有去向客户
+                1.2.1产品表更新
+        2.产品总览表更新
+        3.orderDetail表改变出货状态
+        4.order表内容重新计算
+         */
+//        1.Product表出货
+        productService.deliver(deliverDto);
+//        2.产品总览表更新
+        productOverviewService.updateSelfById(deliverDto.getProducts().get(0).getProductId());
+//        3.orderDetail表改变出货状态
+        orderDetailService.deliver(deliverDto);
+//        4.order表内容重新计算
+        orderService.updateSelfByOrderId(deliverDto.getOrderDetail().getOrderId());
+
+        return R.success("出货成功！订单交付进度等信息请刷新页面查看");
+    }
+
+    @PostMapping("/orderDetails/deliverBatch")
+    public R<Boolean> orderDetailsBatchDeliver(@RequestBody OrderDetailsBatchDeliverDto batchDeliverDto){
+        orderDetailService.deliverBatch(batchDeliverDto);
+        return R.success("出货成功");
+    }
+
+    @PutMapping("/orderDetails")
+    @Transactional
+    public R<Boolean> update4OrderDetail(@RequestBody OrderDetail detail){
+        /*
+            1. 更新orderDetail表
+            2. Order表内容重新计算
+         */
+//      1. 更新orderDetail表
+        boolean operate1 = orderDetailService.updateById(detail);
+//      2. Order表内容重新计算
+        boolean operate2 = orderService.updateSelfByOrderId(detail.getOrderId());
+
+        return operate1&&operate2?
+                R.success("修改成功"):
+                R.error("修改失败！数据不同步，自动刷新",Code.UPDATE_ERR);
+    }
+
+    @DeleteMapping("/orderDetails/{id}")
+    @Transactional
+    public R<Boolean> delete4OrderDetail(@PathVariable int id){
+         /*
+            1. 更新orderDetail表
+            2. Order表内容重新计算
+         */
+        OrderDetail orderDetail = orderDetailService.getById(id);
+//      1. 更新orderDetail表
+        boolean operate1 = orderDetailService.removeById(id);
+//      2. Order表内容重新计算
+        String orderId= orderDetail.getOrderId();
+        boolean operate2 = orderService.updateSelfByOrderId(orderId);
+
+        return operate1&&operate2?
+                R.success("删除成功"):
+                R.error("删除失败！数据不同步，自动刷新",Code.DELETE_ERR);
     }
 
 

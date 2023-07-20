@@ -1,11 +1,9 @@
 package com.kwy.management.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kwy.management.dto.AccountDto;
 import com.kwy.management.dto.OrderAddDto;
-import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Order;
 
 import java.util.List;
@@ -24,4 +22,6 @@ public interface OrderService extends IService<Order> {
     List<Order> getOrdersOneYearByCustomerId(Long customerId);
 
     AccountDto getAcountSimple(Long month);
+
+    Boolean updateSelfByOrderId(String orderId);
 }

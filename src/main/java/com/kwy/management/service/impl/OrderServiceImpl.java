@@ -12,9 +12,11 @@ import com.kwy.management.dto.OrderAddDto;
 import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Order;
 import com.kwy.management.entity.OrderDetail;
+import com.kwy.management.entity.PaymentDetail;
 import com.kwy.management.mapper.CustomerMapper;
 import com.kwy.management.mapper.OrderDetailMapper;
 import com.kwy.management.mapper.OrderMapper;
+import com.kwy.management.mapper.PaymentDetailMapper;
 import com.kwy.management.service.OrderService;
 import com.kwy.management.utils.OrderNumberGenerator;
 import org.apache.logging.log4j.util.Strings;
@@ -41,6 +43,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     @Autowired
     private OrderDetailMapper orderDetailMapper;
 
+    @Autowired
+    private PaymentDetailMapper paymentDetailMapper;
+
     @Override
     @Transactional
     public Boolean addOrder(OrderAddDto orderAddDto) {
@@ -51,11 +56,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
 
         List<OrderDetail> details = orderAddDto.getOrderDetails();
         Order order = new Order();
-        BeanUtils.copyProperties(orderAddDto,order);
+        BeanUtils.copyProperties(orderAddDto, order);
 
         //        1. 订单表 计算金额等
         double totalAmount = 0.0;
-        if (!details.isEmpty()){
+        if (!details.isEmpty()) {
             for (OrderDetail orderDetail : details) {
                 totalAmount += orderDetail.getAmount();
             }
@@ -65,7 +70,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         order.setOrderId(OrderNumberGenerator.generateOrderNumber(order.getId().toString()));
         orderMapper.updateById(order);
         //         2.订单明细表 记录
-        for (OrderDetail detail:details){
+        for (OrderDetail detail : details) {
             detail.setOrderId(order.getOrderId());
             orderDetailMapper.insert(detail);
         }
@@ -162,7 +167,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         accountDto.setTotalAmountDelivered(totalAmountDelivered);
 
 //      4. 未出货额
-        accountDto.setTotalAmountNoDelivered(totalAmountCurrent-totalAmountDelivered);
+        accountDto.setTotalAmountNoDelivered(totalAmountCurrent - totalAmountDelivered);
 
 //      5. 待入账总金额
         Integer[] targetStatus5 = {1, 2, 3, 4}; // 目标订单状态
@@ -172,10 +177,59 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 totalPayment += order.getTotalPayment();
             }
         }
-        accountDto.setTotalAmountDebt(totalAmountCurrent-totalPayment);
-
+        accountDto.setTotalAmountDebt(totalAmountCurrent - totalPayment);
 
 
         return accountDto;
+    }
+
+    @Override
+    public Boolean updateSelfByOrderId(String orderId) {
+        /*
+        1.计算订单金额
+        2.计算交付进度
+        3.计算已回金额
+         */
+        LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Order::getOrderId, orderId);
+        Order order = orderMapper.selectOne(wrapper);
+
+        LambdaQueryWrapper<OrderDetail> wrapper1 = new LambdaQueryWrapper<>();
+        wrapper1.eq(OrderDetail::getOrderId, orderId);
+        List<OrderDetail> orderDetails = orderDetailMapper.selectList(wrapper1);
+
+        LambdaQueryWrapper<PaymentDetail> wrapper2 = new LambdaQueryWrapper<>();
+        wrapper2.eq(PaymentDetail::getOrderId, orderId);
+        List<PaymentDetail> paymentDetails = paymentDetailMapper.selectList(wrapper2);
+
+//        1.计算订单金额
+        Double totalAmount = 0.0;
+        Double totalDelivered = 0.0;
+        if (!orderDetails.isEmpty()) {
+            for (OrderDetail detail : orderDetails) {
+                totalAmount += detail.getAmount();
+                //已发货
+                if (detail.getIsDelivered() == 1)
+                    totalDelivered += detail.getAmount();
+            }
+        }
+        order.setAmount(totalAmount);
+//        2.计算交付进度
+        int deliveryProgress=0;
+        if (totalAmount!=0.0){
+            deliveryProgress=(int)(totalDelivered/totalAmount*100);
+        }
+        order.setDeliveryProgress(deliveryProgress);
+//        3.计算已回金额
+        Double totalPayment = 0.0;
+        if (!paymentDetails.isEmpty()) {
+            for (PaymentDetail detail : paymentDetails) {
+                totalPayment += detail.getAmount();
+            }
+        }
+        order.setTotalPayment(totalPayment);
+//        4.更新数据库
+        orderMapper.updateById(order);
+        return true;
     }
 }
