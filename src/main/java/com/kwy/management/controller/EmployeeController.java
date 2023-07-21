@@ -1,18 +1,18 @@
 package com.kwy.management.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.kwy.management.comon.BaseContext;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
+import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Employee;
 import com.kwy.management.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -81,4 +81,46 @@ public class EmployeeController {
                 R.success("添加成功") :
                 R.error("添加失败", Code.SAVE_ERR);
     }
+
+    @DeleteMapping("/{id}")
+    public R<Boolean> delete(@PathVariable int id) {
+        return employeeService.removeById(id) ?
+                R.success("删除成功") :
+                R.error("删除失败！数据不同步，自动刷新。", Code.DELETE_ERR);
+    }
+
+
+    @PutMapping
+    public R<Boolean> update(@RequestBody Employee employee) {
+        employee.setPassword(DigestUtils.md5DigestAsHex(employee.getPassword().getBytes()));
+        return employeeService.updateById(employee) ?
+                R.success("修改成功!") :
+                R.error("修改失败!数据不同步，自动刷新", Code.UPDATE_ERR);
+    }
+
+    @GetMapping("/{currentPage}/{pageSize}")
+    public R<IPage<Employee>> getPage(@PathVariable int currentPage, @PathVariable int pageSize, Employee employee) {
+        IPage<Employee> page = employeeService.getPage(currentPage, pageSize, employee);
+        //如果当前页码值大于了总页码值，那么重新执行查询操作，使用最大页码值作为当前页码值
+        if (currentPage > page.getPages()) {
+            page = employeeService.getPage((int) page.getPages(), pageSize, employee);
+        }
+        return R.success(page);
+    }
+
+    @GetMapping("/sessions")
+    public R<Boolean> getSession() {
+        return R.success(employeeService.isAdmin(BaseContext.getCurrentId()));
+    }
+
+    @GetMapping
+    public R<Employee> getEmployeeInfo() {
+        if (BaseContext.getCurrentId()!=null){
+            Employee employee = employeeService.getById(BaseContext.getCurrentId());
+            return R.success(employee);
+        }
+        return R.error("登录信息错误！",Code.LOGIN_FAILED);
+    }
+
+
 }
