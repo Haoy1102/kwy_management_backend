@@ -224,7 +224,7 @@ public class OrderController {
     }
 
     @GetMapping("/print/{orderId}")
-    public ResponseEntity<Resource> printOrder(@PathVariable String orderId, HttpServletResponse response) throws IOException {
+    public ResponseEntity<Resource> printOrder(@PathVariable String orderId) throws IOException {
         LambdaQueryWrapper<Order> lqw = new LambdaQueryWrapper<>();
         lqw.eq(Order::getOrderId, orderId);
         Order order = orderService.getOne(lqw);
@@ -238,7 +238,7 @@ public class OrderController {
         List<OrderDetail> orderDetails = orderDetailService.list(lqw1);
 
         String templateFileName = "src/main/resources/stastic/formDemo/order.xlsx";
-        String fileName = String.format("order_%s.xlsx", orderId);
+        String fileName = String.format("order_%s.xlsx", System.currentTimeMillis());
         String filePath = "src/main/resources/stastic/temporary/" + fileName;
 
         try (ExcelWriter excelWriter = EasyExcel.write(filePath).withTemplate(templateFileName).build()) {

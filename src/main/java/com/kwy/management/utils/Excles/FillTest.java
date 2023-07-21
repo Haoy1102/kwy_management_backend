@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -94,5 +95,44 @@ public class FillTest {
 //        OrderController orderController = new OrderController();
 //        orderController.printOrder("2023072019UN10050HIB");
 //    }
+
+    @Test
+    public void testTwoSheet() {
+        // 创建ExcelWriter对象
+        ExcelWriter excelWriter = EasyExcel.write("example.xlsx").build();
+
+        // 创建第一个sheet
+        WriteSheet sheet1 = EasyExcel.writerSheet(0, "Sheet1").build();
+        // 写入数据到第一个sheet
+        excelWriter.write(dataList1(), sheet1);
+
+        // 创建第二个sheet
+        WriteSheet sheet2 = EasyExcel.writerSheet(1, "Sheet2").build();
+        // 写入数据到第二个sheet
+        excelWriter.write(dataList2(), sheet2);
+
+        // 关闭ExcelWriter，保存文件
+        excelWriter.finish();
+    }
+
+    // 模拟数据列表1
+    private static List<List<String>> dataList1() {
+        List<List<String>> dataList = new ArrayList<>();
+        // 添加数据到列表
+        dataList.add(Arrays.asList("A1", "B1", "C1"));
+        dataList.add(Arrays.asList("A2", "B2", "C2"));
+        dataList.add(Arrays.asList("A3", "B3", "C3"));
+        return dataList;
+    }
+
+    // 模拟数据列表2
+    private static List<List<String>> dataList2() {
+        List<List<String>> dataList = new ArrayList<>();
+        // 添加数据到列表
+        dataList.add(Arrays.asList("X1", "Y1", "Z1"));
+        dataList.add(Arrays.asList("X2", "Y2", "Z2"));
+        dataList.add(Arrays.asList("X3", "Y3", "Z3"));
+        return dataList;
+    }
 
 }
