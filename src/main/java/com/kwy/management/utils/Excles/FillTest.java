@@ -5,6 +5,7 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.util.MapUtils;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.kwy.management.controller.OrderController;
 import com.kwy.management.entity.ExcleData.DemoData;
 import com.kwy.management.entity.ExcleData.FillData;
 import org.junit.Test;
@@ -87,4 +88,11 @@ public class FillTest {
         }
 
     }
+
+//    @Test
+//    public void testPrintOrder(){
+//        OrderController orderController = new OrderController();
+//        orderController.printOrder("2023072019UN10050HIB");
+//    }
+
 }

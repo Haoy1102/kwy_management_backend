@@ -11,7 +11,7 @@ import com.kwy.management.entity.OrderDetail;
  * @date 2023/7/14 19:02
  */
 public interface OrderDetailService extends IService<OrderDetail> {
-    boolean deliver(OrderDetailsDeliverDto deliverDto);
+    boolean deliver(OrderDetail orderDetail);
 
     boolean deliverBatch(OrderDetailsBatchDeliverDto batchDeliverDto);
 

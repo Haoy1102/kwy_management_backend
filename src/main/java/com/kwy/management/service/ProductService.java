@@ -3,6 +3,7 @@ package com.kwy.management.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kwy.management.dto.OrderDetailsDeliverDto;
+import com.kwy.management.entity.OrderDetail;
 import com.kwy.management.entity.Product;
 
 /**
@@ -18,4 +19,6 @@ public interface ProductService extends IService<Product> {
     boolean update4Product(Product product);
 
     boolean deliver(OrderDetailsDeliverDto orderDetailsDeliverDto);
+
+    boolean deliverAuto(OrderDetail orderDetail);
 }

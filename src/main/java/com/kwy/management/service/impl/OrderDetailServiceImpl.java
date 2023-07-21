@@ -25,8 +25,7 @@ public class OrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Order
     private OrderDetailMapper orderDetailMapper;
 
     @Override
-    public boolean deliver(OrderDetailsDeliverDto deliverDto) {
-        OrderDetail orderDetail = deliverDto.getOrderDetail();
+    public boolean deliver(OrderDetail orderDetail) {
         orderDetail.setIsDelivered(OrderDetail.DELIVERED);
         orderDetail.setDeliveredDate(LocalDate.now());
         orderDetailMapper.updateById(orderDetail);
