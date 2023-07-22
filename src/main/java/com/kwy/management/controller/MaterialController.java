@@ -67,6 +67,23 @@ public class MaterialController {
     }
 
 
+    @PostMapping("/overviews")
+    public R<Boolean> getPage4Overview(@RequestBody MaterialOverview overview) {
+        return materialOverviewService.save(overview) ?
+                R.success("添加成功") :
+                R.error("添加失败", Code.SAVE_ERR);
+    }
+
+    @DeleteMapping("/overviews/{id}")
+    public R<Boolean> delete4Overviews(@PathVariable Long id) {
+        if (materialOverviewService.getById(id).getNumber()==0){
+            return materialOverviewService.removeById(id) ?
+                    R.success("删除成功") :
+                    R.error("删除失败！数据不同步，自动刷新", Code.DELETE_ERR);
+        }
+        return R.error("删除失败！库存数量不为0", Code.DELETE_ERR);
+    }
+
     @GetMapping("/overviews/{currentPage}/{pageSize}")
     public R<IPage<MaterialOverview>> getPage4Overview(@PathVariable int currentPage,
                                                        @PathVariable int pageSize,
@@ -92,7 +109,15 @@ public class MaterialController {
         List<MaterialInfo> list = materialInfoService.list();
         return !list.isEmpty()?
                 R.success(list):
-                R.error("原料管理表没有信息,请先添加原料信息",Code.GET_ERR);
+                R.error("采购管理表没有信息,请先添加采购信息",Code.GET_ERR);
+    }
+
+    @GetMapping("/overviews")
+    public R<List<MaterialOverview>> getAll4Overview(){
+        List<MaterialOverview> list = materialOverviewService.list();
+        return !list.isEmpty()?
+                R.success(list):
+                R.error("原料总览表没有信息,请先添加原料信息",Code.GET_ERR);
     }
 
 }

@@ -17,5 +17,9 @@ public interface GoodsService extends IService<Goods> {
 
     boolean goodsOut(GoodsOutForm goodsRecord);
 
-    boolean inventoryEntry(Goods goods);
+    boolean entryManual(Goods goods);
+
+    boolean update4Goods(Goods newGoods);
+
+    boolean deleteGoods(int id);
 }

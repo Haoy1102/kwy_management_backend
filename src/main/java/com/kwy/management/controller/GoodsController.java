@@ -37,8 +37,8 @@ public class GoodsController {
      * @return
      */
     @PostMapping
-    public R<Boolean> inventoryEntry(@RequestBody Goods goods) {
-        return goodsService.inventoryEntry(goods) ?
+    public R<Boolean> entryManual(@RequestBody Goods goods) {
+        return goodsService.entryManual(goods) ?
                 R.success("录入成功") :
                 R.error("录入失败，请检查数据", Code.SAVE_ERR);
     }
@@ -48,8 +48,8 @@ public class GoodsController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public R<Boolean> delete(@PathVariable int id) {
-        return goodsService.removeById(id) ?
+    public R<Boolean> delete4Goods(@PathVariable int id) {
+        return goodsService.deleteGoods(id) ?
                 R.success("删除成功") :
                 R.error("删除失败！数据不同步，自动刷新", Code.DELETE_ERR);
     }
@@ -59,8 +59,8 @@ public class GoodsController {
      * @return
      */
     @PutMapping
-    public R<Boolean> update(@RequestBody Goods goods) {
-        return goodsService.updateById(goods) ?
+    public R<Boolean> update4Goods(@RequestBody Goods goods) {
+        return goodsService.update4Goods(goods) ?
                 R.success("修改成功!") :
                 R.error("修改失败!数据不同步，自动刷新", Code.UPDATE_ERR);
     }

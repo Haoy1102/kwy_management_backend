@@ -22,6 +22,8 @@ public class Goods implements Serializable {
 
     private Long id;
 
+    private Long categoryId;
+
     private Long materialInfoId;
 
     private Long goodsId;
@@ -30,7 +32,7 @@ public class Goods implements Serializable {
 
     private String supplier;
 
-    private Double number;
+    private Integer number;
 
     private String location;
 

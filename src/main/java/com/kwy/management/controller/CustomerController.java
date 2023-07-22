@@ -58,7 +58,6 @@ public class CustomerController {
     @Autowired
     private OrderService orderService;
 
-
     @Autowired
     private OrderDetailService orderDetailService;
 
@@ -116,6 +115,10 @@ public class CustomerController {
         return R.success(page);
     }
 
+    /**
+     * 返回所有用户数据
+     * @return
+     */
     @GetMapping()
     public R<List<Customer>> getAll() {
         List<Customer> customerList = customerService.list();
@@ -124,12 +127,25 @@ public class CustomerController {
                 R.error("获取客户数据失败", Code.GET_ERR);
     }
 
+    /**
+     * 返回用户详细的统计数据
+     * @param id
+     * @return
+     */
     @GetMapping("/{id}")
     public R<CustomerDto> getDetails(@PathVariable Long id) {
         CustomerDto customerDto = customerService.getDetails(id);
         return R.success(customerDto);
     }
 
+    /**
+     * 返回对账单.xlsx文件
+     * @param customerId
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws FileNotFoundException
+     */
     @GetMapping("/checkBills/{customerId}")
     public ResponseEntity<Resource> checkBills(@PathVariable Long customerId, String startDate, String endDate) throws FileNotFoundException {
 

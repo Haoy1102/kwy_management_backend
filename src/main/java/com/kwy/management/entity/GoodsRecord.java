@@ -18,16 +18,24 @@ import java.time.LocalDateTime;
 @Data
 public class GoodsRecord implements Serializable {
 
-    // 1入库 2出库
-    public static final int  OPERATE_IN= 1;
+    // 1采购 2出库 3手动录入 4手动调整 5删除
+    public static final int OPERATE_PURCHASE = 1;
     public static final int  OPERATE_OUT= 2;
     public static final int  OPERATE_IN_MANUAL= 3;
+
+    public static final int  OPERATE_MANUAL= 4;
+
+    public static final int  OPERATE_DELETE= 5;
+
+
 
     private static final long serialVersionUID = 1L;
 
     private Long id;
 
     private Long goodsId;
+
+    private Long categoryId;
 
     private Long materialInfoId;
 
@@ -37,9 +45,11 @@ public class GoodsRecord implements Serializable {
 
     private Integer operateType;
 
-    private Double operateNumber;
+    private Integer operateNumber;
 
-    private Double remainNumber;
+    private Integer remainNumber;
+
+    private Integer originNumber;
 
     private LocalDate producedDate;
 

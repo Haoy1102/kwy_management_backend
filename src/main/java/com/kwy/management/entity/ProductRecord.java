@@ -22,7 +22,7 @@ public class ProductRecord implements Serializable {
     //1生产 2出货 3手动调整 4删除
     public static final Integer OPERATE_PRODUCE = 1;
     public static final Integer OPERATE_DELIVER = 2;
-    public static final Integer OPERATE_IN_MANUAL = 3;
+    public static final Integer OPERATE_MANUAL = 3;
     public static final Integer OPERATE_DELETE = 4;
     private Long id;
 

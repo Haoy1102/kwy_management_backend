@@ -22,6 +22,10 @@ public class PurchaseRecord implements Serializable {
 
     private Long id;
 
+    private Long goodsId;
+
+    private Long categoryId;
+
     private Long materialInfoId;
 //    private Long goodsId;
 
@@ -29,7 +33,7 @@ public class PurchaseRecord implements Serializable {
 
     private String supplier;
 
-    private Double number;
+    private Integer number;
 
     private Double price;
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.Version;
+import com.kwy.management.entity.GoodsRecord;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -18,50 +19,14 @@ import java.time.LocalDateTime;
 @Data
 public class GoodsOutForm implements Serializable {
 
-    public static final int OPERATE_IN = 1;
-    public static final int OPERATE_OUT = 2;
-
     private static final long serialVersionUID = 1L;
-
-    private Long id;
-
-    private Long materialInfoId;
 
     private Long goodsId;
 
-    private String category;
+    private Integer operateNumber;
 
-    private String supplier;
-
-    private Double number;
-
-    private Double operateNumber;
-
-    private Integer operateType = OPERATE_OUT;
-
-    private String location;
-
-    private LocalDate producedDate;
-
-    private Integer status;
+    private Integer operateType = GoodsRecord.OPERATE_OUT;
 
     private String note;
 
-    @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private String updateUser;
-
-    @Version
-    private Integer version;
-
-    @TableLogic  //逻辑删除 1删除 0正常
-    private Integer deleted;
 }

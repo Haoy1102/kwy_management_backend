@@ -21,6 +21,8 @@ public class MaterialInfo implements Serializable {
 
     private Long id;
 
+    private Long categoryId;
+
     private String category;
 
     private String supplier;

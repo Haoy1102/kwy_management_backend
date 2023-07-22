@@ -47,6 +47,13 @@ public class ProductController {
                 R.error("修改失败！数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
+    /**
+     * 得到Product数据 按照创建时间降序排列
+     * @param currentPage
+     * @param pageSize
+     * @param product
+     * @return
+     */
     @GetMapping("/{currentPage}/{pageSize}")
     public R<IPage<Product>> getPage4Product(@PathVariable int currentPage,
                                              @PathVariable int pageSize,
@@ -68,10 +75,13 @@ public class ProductController {
     }
 
     @DeleteMapping("/overviews/{id}")
-    public R<Boolean> delete(@PathVariable Long id) {
-        return productOverviewService.removeById(id) ?
-                R.success("删除成功") :
-                R.error("删除失败！数据不同步，自动刷新", Code.DELETE_ERR);
+    public R<Boolean> delete4Overviews(@PathVariable Long id) {
+        if (productOverviewService.getById(id).getNumber()==0){
+            return productOverviewService.removeById(id) ?
+                    R.success("删除成功") :
+                    R.error("删除失败！数据不同步，自动刷新", Code.DELETE_ERR);
+        }
+        return R.error("删除失败！产品数量不为0", Code.DELETE_ERR);
     }
 
     @PutMapping("/overviews")
@@ -81,6 +91,13 @@ public class ProductController {
                 R.error("修改失败！数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
+    /**
+     * 产品总览数据 按照创建时间降序排列
+     * @param currentPage
+     * @param pageSize
+     * @param productOverview
+     * @return
+     */
     @GetMapping("/overviews/{currentPage}/{pageSize}")
     public R<IPage<ProductOverview>> getPage(@PathVariable int currentPage,
                                           @PathVariable int pageSize,
@@ -93,6 +110,10 @@ public class ProductController {
         return R.success(page);
     }
 
+    /**
+     * 返回所有产品种类
+     * @return
+     */
     @GetMapping("/overviews")
     public R<List<ProductOverview>> getAll4Overview() {
         List<ProductOverview> list = productOverviewService.list();
@@ -101,6 +122,7 @@ public class ProductController {
                 R.error("请先新增产品数据",Code.GET_ERR);
     }
 
+
     @PostMapping("/overviews/produce")
     public R<Boolean> produce(@RequestBody Product product) {
         return productOverviewService.produce(product) ?
@@ -108,7 +130,13 @@ public class ProductController {
                 R.error("新增失败,请检查数据", Code.SAVE_ERR);
     }
 
-
+    /**
+     * 产品记录分页 按照创建时间降序
+     * @param currentPage
+     * @param pageSize
+     * @param record
+     * @return
+     */
     @GetMapping("/records/{currentPage}/{pageSize}")
     public R<IPage<ProductRecord>> getPage4ProductRecord(@PathVariable int currentPage,
                                              @PathVariable int pageSize,
@@ -128,6 +156,11 @@ public class ProductController {
                 R.error("修改失败！数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
+    /**
+     * 出货时得到所有数量>=0的产品
+     * @param productId
+     * @return
+     */
     @GetMapping("/{productId}")
     public R<List<Product>> getProductsByProductId(@PathVariable Long productId) {
         LambdaQueryWrapper<Product> queryWrapper = new LambdaQueryWrapper<>();

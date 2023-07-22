@@ -44,7 +44,8 @@ public class GoodsRecordServiceImpl extends ServiceImpl<GoodsRecordMapper, Goods
     @Override
     public IPage<GoodsRecord> getPageSimple(Long goodsId) {
         LambdaQueryWrapper<GoodsRecord> lqw = new LambdaQueryWrapper<>();
-        lqw.eq(GoodsRecord::getGoodsId, goodsId);
+        lqw.eq(GoodsRecord::getGoodsId, goodsId)
+                .orderByDesc(GoodsRecord::getCreateTime);
         IPage page = new Page(1, 10);
         goodsRecordMapper.selectPage(page, lqw);
         return page;

@@ -45,6 +45,7 @@ public class ProductOverviewServiceImpl extends ServiceImpl<ProductOverviewMappe
                 ProductOverview::getProductName,productOverview.getProductName());
         lqw.like(Strings.isNotEmpty(productOverview.getProductCode()),
                 ProductOverview::getProductCode,productOverview.getProductCode());
+        lqw.orderByDesc(ProductOverview::getCreateTime);
         IPage page = new Page(currentPage, pageSize);
         productOverviewMapper.selectPage(page, lqw);
         return page;
@@ -90,7 +91,7 @@ public class ProductOverviewServiceImpl extends ServiceImpl<ProductOverviewMappe
         ProductOverview productOverview = productOverviewMapper.selectById(productId);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Product::getProductId,productId)
-                .gt(Product::getNumber, 0);;
+                .gt(Product::getNumber, 0);
 
         List<Product> products = productMapper.selectList(wrapper);
 

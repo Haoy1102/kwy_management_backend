@@ -24,7 +24,7 @@ public class MaterialOverview implements Serializable {
 
     private String category;
 
-    private Double number;
+    private Integer number;
 
     private LocalDate updateDate;
 

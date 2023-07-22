@@ -11,7 +11,6 @@ import com.kwy.management.mapper.ProductMapper;
 import com.kwy.management.mapper.ProductOverviewMapper;
 import com.kwy.management.mapper.ProductRecordMapper;
 import com.kwy.management.service.ProductService;
-import com.sun.org.apache.xpath.internal.operations.Or;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,6 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         LambdaQueryWrapper<Product> lqw = new LambdaQueryWrapper<>();
         lqw.like(null != product.getProductId(),
                 Product::getProductId, product.getProductId());
-
         lqw.like(null != product.getBatchId(),
                 Product::getBatchId, product.getBatchId());
         lqw.like(Strings.isNotEmpty(product.getLocation()),
@@ -123,7 +121,7 @@ public class ProductServiceImpl extends ServiceImpl<ProductMapper, Product> impl
         ProductRecord record = new ProductRecord();
         BeanUtils.copyProperties(newProduct, record);
 
-        record.setOperateType(ProductRecord.OPERATE_IN_MANUAL);
+        record.setOperateType(ProductRecord.OPERATE_MANUAL);
         record.setOperateNumber(changeNumber);
         record.setRemainNumber(newProduct.getNumber());
         record.setOriginNumber(originProduct.getNumber());

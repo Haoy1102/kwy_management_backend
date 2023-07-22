@@ -88,6 +88,13 @@ public class OrderController {
                 R.error("修改失败！数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
+    /**
+     * 返回订单页面
+     * @param currentPage
+     * @param pageSize
+     * @param order
+     * @return
+     */
     @GetMapping("/{currentPage}/{pageSize}")
     public R<IPage<Order>> getPage(@PathVariable int currentPage, @PathVariable int pageSize, Order order) {
         IPage<Order> page = orderService.getPage(currentPage, pageSize, order);
@@ -99,12 +106,22 @@ public class OrderController {
         return R.success(page);
     }
 
+    /**
+     * 返回客户一年的订单数据
+     * @param customerId
+     * @return
+     */
     @GetMapping("/customers/{customerId}")
     public R<List<Order>> getOrdersOneYearByCustomerId(@PathVariable Long customerId) {
         List<Order> orders = orderService.getOrdersOneYearByCustomerId(customerId);
         return R.success(orders);
     }
 
+    /**
+     * 查询订单内容
+     * @param orderId
+     * @return
+     */
     @GetMapping("/orderDetails/{orderId}")
     public R<List<OrderDetail>> getOrderDetailsByOrderId(@PathVariable String orderId) {
         LambdaQueryWrapper<OrderDetail> queryWrapper = new LambdaQueryWrapper<>();
@@ -113,6 +130,11 @@ public class OrderController {
         return R.success(list);
     }
 
+    /**
+     * 订单内容出货
+     * @param deliverDto
+     * @return
+     */
     @PostMapping("/orderDetails/deliver")
     @Transactional
     public R<Boolean> orderDetailsDeliver(@RequestBody OrderDetailsDeliverDto deliverDto) {
@@ -137,6 +159,11 @@ public class OrderController {
         return R.success("出货成功！订单交付进度等信息请刷新页面查看");
     }
 
+    /**
+     * 订单内容批量出货
+     * @param batchDeliverDto
+     * @return
+     */
     @PostMapping("/orderDetails/deliverBatch")
     @Transactional
     public R<Boolean> orderDetailsBatchDeliver(@RequestBody OrderDetailsBatchDeliverDto batchDeliverDto) {
@@ -187,6 +214,11 @@ public class OrderController {
 
     }
 
+    /**
+     * 编辑单条orderDetail操作
+     * @param detail
+     * @return
+     */
     @PutMapping("/orderDetails")
     @Transactional
     public R<Boolean> update4OrderDetail(@RequestBody OrderDetail detail) {
@@ -204,6 +236,11 @@ public class OrderController {
                 R.error("修改失败！数据不同步，自动刷新", Code.UPDATE_ERR);
     }
 
+    /**
+     * 删除单条orderDetail操作
+     * @param id
+     * @return
+     */
     @DeleteMapping("/orderDetails/{id}")
     @Transactional
     public R<Boolean> delete4OrderDetail(@PathVariable int id) {
@@ -223,6 +260,12 @@ public class OrderController {
                 R.error("删除失败！数据不同步，自动刷新", Code.DELETE_ERR);
     }
 
+    /**
+     * 返回订单的Excel
+     * @param orderId
+     * @return
+     * @throws IOException
+     */
     @GetMapping("/print/{orderId}")
     public ResponseEntity<Resource> printOrder(@PathVariable String orderId) throws IOException {
         LambdaQueryWrapper<Order> lqw = new LambdaQueryWrapper<>();

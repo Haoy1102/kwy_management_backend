@@ -105,7 +105,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         LambdaQueryWrapper<Order> lqw = new LambdaQueryWrapper<>();
         lqw.eq(Order::getCustomerId, customerId)
                 .ge(Order::getCreateTime, oneYearAgo)
-                .le(Order::getCreateTime, currentDateTime);
+                .le(Order::getCreateTime, currentDateTime)
+                .orderByDesc(Order::getCreateTime);
 
         return orderMapper.selectList(lqw);
     }
