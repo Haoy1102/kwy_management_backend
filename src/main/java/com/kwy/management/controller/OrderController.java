@@ -25,6 +25,7 @@ import com.kwy.management.utils.NumberConverterUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -53,6 +54,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
+
+    @Value("${myapp.file-path}")
+    private String basicPath;
+
+    @Value("${myapp.template-order-path}")
+    private String templateFilePath;
 
     @Autowired
     private OrderService orderService;
@@ -287,9 +294,9 @@ public class OrderController {
         lqw1.eq(OrderDetail::getOrderId, orderId);
         List<OrderDetail> orderDetails = orderDetailService.list(lqw1);
 
-        String templateFileName = "src/main/resources/stastic/formDemo/order.xlsx";
+        String templateFileName = templateFilePath;
         String fileName = String.format("order_%s.xlsx", System.currentTimeMillis());
-        String filePath = "src/main/resources/stastic/temporary/" + fileName;
+        String filePath = basicPath + fileName;
 
         try (ExcelWriter excelWriter = EasyExcel.write(filePath).withTemplate(templateFileName).build()) {
             WriteSheet writeSheet = EasyExcel.writerSheet().build();
@@ -329,7 +336,7 @@ public class OrderController {
         LocalDateTime localEndDateTime = localEndDate.atStartOfDay().plusDays(1); // 加一天，包括结束日期当天
 
         String fileName = String.format("orderRecord_%s.xlsx", System.currentTimeMillis());
-        String filePath = "src/main/resources/stastic/temporary/" + fileName;
+        String filePath = basicPath + fileName;
 
 
         String[] statusLabels = {"","未制作", "制作中", "部分交付", "待回款", "完成", "返厂", "作废"};

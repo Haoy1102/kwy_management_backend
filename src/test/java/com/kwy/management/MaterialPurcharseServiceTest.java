@@ -25,7 +25,7 @@ public class MaterialPurcharseServiceTest {
         record.setMaterialInfoId(10001L);
         record.setCategory("味精1");
         record.setSupplier("供货尚2");
-        record.setNumber(100.00);
+//        record.setNumber(100.00);
         record.setPrice(20.00);
         record.setTotalAmount(2000.00);
         record.setLocation("东厂");

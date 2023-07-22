@@ -16,11 +16,13 @@ import com.kwy.management.utils.NumberConverterUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
@@ -43,6 +45,9 @@ public class PurchaseController {
 
     @Autowired
     private PurchaseRecordService purchaseRecordService;
+
+    @Value("${myapp.file-path}")
+    private String basicPath;
 
 
     @PostMapping
@@ -89,8 +94,10 @@ public class PurchaseController {
         int currentPage = 1; // 当前页码
         String[] statusLabels = {"", "新鲜", "临期", "尽快使用"};
 
+
+
         String fileName = String.format("purRecord_%s.xlsx", System.currentTimeMillis());
-        String filePath = "src/main/resources/stastic/temporary/" + fileName;
+        String filePath = basicPath + fileName;
 
         try (ExcelWriter excelWriter = EasyExcel.write(filePath, PurchaseDataDemo.class).build()) {
 

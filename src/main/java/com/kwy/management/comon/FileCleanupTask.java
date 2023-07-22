@@ -1,5 +1,6 @@
 package com.kwy.management.comon;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,10 +14,13 @@ import java.io.File;
 @Component
 public class FileCleanupTask {
 
+    @Value("${myapp.file-path}")
+    private String basicPath;
+
     // 每天凌晨1点执行清理任务
     @Scheduled(cron = "0 17 23 * * ?")
     public void cleanupFolder() {
-        String folderPath = "src/main/resources/stastic/temporary";
+        String folderPath = basicPath;
         File folder = new File(folderPath);
 
         if (folder.exists() && folder.isDirectory()) {

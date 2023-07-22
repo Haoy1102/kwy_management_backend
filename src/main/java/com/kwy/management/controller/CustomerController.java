@@ -52,6 +52,12 @@ import java.util.List;
 @RequestMapping("/api/customers")
 public class CustomerController {
 
+    @Value("${myapp.file-path}")
+    private String basicPath;
+
+    @Value("${myapp.template-checkForm-path}")
+    private String templateFilePath;
+
     @Autowired
     private CustomerService customerService;
 
@@ -210,9 +216,9 @@ public class CustomerController {
         checkFormDemo.setTotalDebt(checkFormDemo.getTotalAmount()-checkFormDemo.getTotalPayment());
 
 
-        String templateFileName = "src/main/resources/stastic/formDemo/checkForm.xlsx";
+        String templateFileName = templateFilePath;
         String fileName = String.format("check_%s.xlsx", System.currentTimeMillis());
-        String filePath = "src/main/resources/stastic/temporary/" + fileName;
+        String filePath = basicPath + fileName;
         try (ExcelWriter excelWriter = EasyExcel.write(filePath).withTemplate(templateFileName).build()) {
             WriteSheet sheetCheck = EasyExcel.writerSheet(0,"对账单").build();
             WriteSheet sheetPayment = EasyExcel.writerSheet(1,"回款记录").build();
