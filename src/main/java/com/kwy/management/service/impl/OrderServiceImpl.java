@@ -4,16 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.kwy.management.comon.Code;
-import com.kwy.management.comon.R;
 import com.kwy.management.dto.AccountDto;
-import com.kwy.management.dto.CustomerDto;
 import com.kwy.management.dto.OrderAddDto;
-import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Order;
 import com.kwy.management.entity.OrderDetail;
 import com.kwy.management.entity.PaymentDetail;
-import com.kwy.management.mapper.CustomerMapper;
 import com.kwy.management.mapper.OrderDetailMapper;
 import com.kwy.management.mapper.OrderMapper;
 import com.kwy.management.mapper.PaymentDetailMapper;
@@ -26,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Arrays;
 import java.util.List;
 
@@ -86,6 +82,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
                 Order::getAddress, order.getAddress());
         lqw.like(Strings.isNotEmpty(order.getOrderId()),
                 Order::getOrderId, order.getOrderId());
+        lqw.like(Strings.isNotEmpty(order.getPeople()),
+                Order::getPeople, order.getPeople());
         lqw.orderByDesc(Order::getCreateTime);
         IPage page = new Page(currentPage, pageSize);
         orderMapper.selectPage(page, lqw);
@@ -111,33 +109,31 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return orderMapper.selectList(lqw);
     }
 
-    @Override
-    public AccountDto getAcountSimple(Long month) {
+    public AccountDto getAcountThisMonth() {
         /*
-            1. 近n月订单总额        (非作废，非返场)的年总订单额度
-            2. 未完成订单金额        目前未完成(非作废，非返场)的订单额度）
-            3. 已出货额          目前未完成(非作废，非返场)的订单 订单金额*出货进度
-            4. 未出货额
-            5. 待入账总金额          （待回款状态下）现存订单额度-已回金额
-//          6. 原材料总资产(放在原料模块)       (非作废，非返场)现存订单额度-已回金额
+            1. 本月总成交额     本月订单(非作废，非返场)的总成交额
+            2. 本月总交付金额    本月订单(非作废，非返场)的出货额度
+            3. 本月总入账额
          */
-
         AccountDto accountDto = new AccountDto();
-
-        // 获取当前日期时间
         LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime firstDayOfMonth = currentDateTime.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime lastDayOfMonth = currentDateTime.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
 
-        // 计算数月前日期时间
-        LocalDateTime monthsAgo = currentDateTime.minusMonths(month);
+//        // 获取当前日期时间
+//        LocalDateTime currentDateTime = LocalDateTime.now();
+//
+//        // 计算数月前日期时间
+//        LocalDateTime monthsAgo = currentDateTime.minusMonths(month);
 
-        //获取数月内所有的订单数据
+        //获取本月内所有的订单数据
         LambdaQueryWrapper<Order> lqw = new LambdaQueryWrapper<>();
-        lqw.ge(Order::getCreateTime, monthsAgo)
-                .le(Order::getCreateTime, currentDateTime);
+        lqw.ge(Order::getCreateTime, firstDayOfMonth)
+                .le(Order::getCreateTime, lastDayOfMonth);
         List<Order> orders = orderMapper.selectList(lqw);
 
 
-//        1. 总成交额
+//      1. 本月总成交额     本月订单(非作废，非返场)的总成交额
         Integer[] targetStatus1 = {1, 2, 3, 4, 5}; // 目标订单状态
         double totalAmount = 0.0;
         for (Order order : orders) {
@@ -148,37 +144,49 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         accountDto.setTotalAmount(totalAmount);
 
 //        2. 现存订单额   （目前未完成(非作废，非返场)的订单额度）
-        Integer[] targetStatus2 = {1, 2, 3, 4}; // 目标订单状态
-        double totalAmountCurrent = 0.0;
-        for (Order order : orders) {
-            if (Arrays.asList(targetStatus2).contains(order.getStatus())) {
-                totalAmountCurrent += order.getAmount();
-            }
-        }
-        accountDto.setTotalAmountCurrent(totalAmountCurrent);
+//        Integer[] targetStatus2 = {1, 2, 3, 4}; // 目标订单状态
+//        double totalAmountCurrent = 0.0;
+//        for (Order order : orders) {
+//            if (Arrays.asList(targetStatus2).contains(order.getStatus())) {
+//                totalAmountCurrent += order.getAmount();
+//            }
+//        }
+//        accountDto.setTotalAmountCurrent(totalAmountCurrent);
 
-//      3.已出货额    目前未完成(非作废，非返场)的订单 订单金额*出货进度
-        Integer[] targetStatus3 = {1, 2, 3, 4}; // 目标订单状态
+//      2.本月总交付金额    本月订单(非作废，非返场)的出货额度
+        Integer[] targetStatus3 = {1, 2, 3, 4, 5}; // 目标订单状态
         double totalAmountDelivered = 0.0;
         for (Order order : orders) {
             if (Arrays.asList(targetStatus3).contains(order.getStatus())) {
-                totalAmountDelivered += order.getAmount() * order.getDeliveryProgress() / 100;
+                totalAmountDelivered += order.getTotalDelivered();
             }
         }
         accountDto.setTotalAmountDelivered(totalAmountDelivered);
 
 //      4. 未出货额
-        accountDto.setTotalAmountNoDelivered(totalAmountCurrent - totalAmountDelivered);
+//        accountDto.setTotalAmountNoDelivered(totalAmountCurrent - totalAmountDelivered);
 
-//      5. 待入账总金额
-        Integer[] targetStatus5 = {1, 2, 3, 4}; // 目标订单状态
+//      3.本月总入账额
+        Integer[] targetStatus4 = {1, 2, 3, 4, 5}; // 目标订单状态
         double totalPayment = 0.0;
         for (Order order : orders) {
-            if (Arrays.asList(targetStatus5).contains(order.getStatus())) {
+            if (Arrays.asList(targetStatus4).contains(order.getStatus())) {
                 totalPayment += order.getTotalPayment();
             }
         }
-        accountDto.setTotalAmountDebt(totalAmountCurrent - totalPayment);
+        accountDto.setTotalAmoutPayment(totalPayment);
+
+
+
+//      5. 待入账总金额
+//        Integer[] targetStatus5 = {1, 2, 3, 4}; // 目标订单状态
+//        double totalPayment = 0.0;
+//        for (Order order : orders) {
+//            if (Arrays.asList(targetStatus5).contains(order.getStatus())) {
+//                totalPayment += order.getTotalPayment();
+//            }
+//        }
+//        accountDto.setTotalAmountDebt(totalAmountCurrent - totalPayment);
 
 
         return accountDto;
@@ -220,6 +228,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         if (totalAmount!=0.0){
             deliveryProgress=(int)(totalDelivered/totalAmount*100);
         }
+        order.setTotalDelivered(totalDelivered);
         order.setDeliveryProgress(deliveryProgress);
 //        3.计算已回金额
         Double totalPayment = 0.0;

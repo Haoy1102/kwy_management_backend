@@ -17,4 +17,6 @@ public interface ProductOverviewService extends IService<ProductOverview> {
     boolean produce(Product product);
 
     boolean updateSelfById(Long productId);
+
+    Double sumColumn(String columnName);
 }

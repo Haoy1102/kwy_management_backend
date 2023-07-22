@@ -6,12 +6,12 @@ spring:
   datasource:
     druid:
       driver-class-name: com.mysql.cj.jdbc.Driver
-#      url: jdbc:mysql://rm-cn-uax3bb9ng0006uo.rwlb.rds.aliyuncs.com:3306/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-#      username: haoy
-#      password: Hy011102
-      url: jdbc:mysql://localhost:3306/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: root
-      password: Hy011102..
+      url: jdbc:mysql://rm-cn-uax3bb9ng0006uo.rwlb.rds.aliyuncs.com:3306/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: haoy
+      password: Hy011102
+#      url: jdbc:mysql://localhost:3306/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+#      username: root
+#      password: Hy011102..
 
 mybatis-plus:
   configuration:

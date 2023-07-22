@@ -5,6 +5,8 @@ import com.kwy.management.dto.AccountDto;
 import com.kwy.management.entity.MaterialOverview;
 import com.kwy.management.service.MaterialOverviewService;
 import com.kwy.management.service.OrderService;
+import com.kwy.management.service.ProductOverviewService;
+import com.kwy.management.service.PurchaseRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,11 +30,21 @@ public class AccountController {
     @Autowired
     private MaterialOverviewService materialOverviewService;
 
-    @GetMapping("/{month}")
-    public R<AccountDto> getAcountSimple(@PathVariable Long month){
-        AccountDto accountDto = orderService.getAcountSimple(month);
-        Double value = materialOverviewService.sumColumn("value");
-        accountDto.setTotalAssetsMaterial(value);
+    @Autowired
+    private ProductOverviewService productOverviewService;
+
+    @Autowired
+    private PurchaseRecordService purchaseRecordService;
+
+    @GetMapping
+    public R<AccountDto> getAcountSimple(){
+        AccountDto accountDto = orderService.getAcountThisMonth();
+        Double valueMaterial = materialOverviewService.sumColumn("value");
+        Double valueProduct = productOverviewService.sumColumn("value");
+        Double totalAmountExpend =purchaseRecordService.getAcountThisMonth();
+        accountDto.setTotalAssetsMaterial(valueMaterial);
+        accountDto.setTotalAssetsProduct(valueProduct);
+        accountDto.setTotalAmoutExpend(totalAmountExpend);
         return R.success(accountDto);
     }
 }

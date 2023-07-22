@@ -68,6 +68,10 @@ public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements
          */
         Goods goods = goodsMapper.selectById(outForm.getGoodsId());
 
+        if (outForm.getOperateNumber()>goods.getNumber()){
+            return false;
+        }
+
         // 1. 插入GoodsRecord 库存记录表 注意余量
         GoodsRecord goodsRecord = new GoodsRecord();
         BeanUtils.copyProperties(outForm, goodsRecord);

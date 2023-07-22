@@ -21,7 +21,7 @@ public interface OrderService extends IService<Order> {
 
     List<Order> getOrdersOneYearByCustomerId(Long customerId);
 
-    AccountDto getAcountSimple(Long month);
+    AccountDto getAcountThisMonth();
 
     Boolean updateSelfByOrderId(String orderId);
 }

@@ -30,4 +30,15 @@ public class AccountDto implements Serializable {
 //    原材料总资产
     private Double totalAssetsMaterial;
 
+//    产品总资产
+    private Double totalAssetsProduct;
+
+//    总入账金额
+    private Double totalAmoutPayment;
+
+//    总出账金额
+    private Double totalAmoutExpend;
+
+
+
 }

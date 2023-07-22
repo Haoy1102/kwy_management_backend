@@ -1,13 +1,11 @@
 package com.kwy.management.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.kwy.management.entity.MaterialInfo;
-import com.kwy.management.entity.Product;
-import com.kwy.management.entity.ProductOverview;
-import com.kwy.management.entity.ProductRecord;
+import com.kwy.management.entity.*;
 import com.kwy.management.mapper.ProductMapper;
 import com.kwy.management.mapper.ProductOverviewMapper;
 import com.kwy.management.mapper.ProductRecordMapper;
@@ -19,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -104,6 +103,14 @@ public class ProductOverviewServiceImpl extends ServiceImpl<ProductOverviewMappe
 
         productOverviewMapper.updateById(productOverview);
         return true;
+    }
+
+    @Override
+    public Double sumColumn(String columnName) {
+        QueryWrapper<ProductOverview> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("SUM(" + columnName + ")");
+        List<Object> result = productOverviewMapper.selectObjs(queryWrapper);
+        return ((BigDecimal) result.get(0)).doubleValue();
     }
 
 

@@ -8,6 +8,7 @@ import com.kwy.management.dto.CustomerDto;
 import com.kwy.management.entity.Customer;
 import com.kwy.management.entity.Order;
 import com.kwy.management.mapper.CustomerMapper;
+import com.kwy.management.mapper.OrderDetailMapper;
 import com.kwy.management.mapper.OrderMapper;
 import com.kwy.management.service.CustomerService;
 import org.apache.logging.log4j.util.Strings;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.awt.print.Book;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,6 +37,9 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private OrderDetailMapper orderDetailMapper;
+
     @Override
     public IPage getPage(int currentPage, int pageSize, Customer customer) {
         LambdaQueryWrapper<Customer> lqw = new LambdaQueryWrapper<Customer>();
@@ -42,6 +47,8 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                 Customer::getCustomer, customer.getCustomer());
         lqw.like(Strings.isNotEmpty(customer.getAddress()),
                 Customer::getAddress, customer.getAddress());
+        lqw.like(Strings.isNotEmpty(customer.getPeople()),
+                Customer::getPeople, customer.getPeople());
         IPage page = new Page(currentPage, pageSize);
         customerMapper.selectPage(page, lqw);
         return page;
@@ -57,85 +64,61 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     public CustomerDto getDetails(Long id) {
 
         /*
-            1. 年总成交额        (非作废，非返场)的年总订单额度
-            2. 现存订单额        目前未完成(非作废，非返场)的订单额度）
-            3. 已出货额          目前未完成(非作废，非返场)的订单 订单金额*出货进度
-            4. 欠款额度          （待回款状态下）现存订单额度-已回金额
-//          5. 总待支付金额       (非作废，非返场)现存订单额度-已回金额
+            1. 本月总成交额     本月订单(非作废，非返场)的总成交额
+            2. 本月已出货额    本月订单(非作废，非返场)的出货额度
+            3. 总支付金额       本月订单(非作废，非返场)的总已回金额
+            4. 本月欠款金额    本月订单(非作废，非返场)总交付额-已回金额
          */
         CustomerDto customerDto = new CustomerDto();
         Customer customer = customerMapper.selectById(id);
         BeanUtils.copyProperties(customer, customerDto);
 
-        // 获取当前日期时间
-        LocalDateTime currentDateTime = LocalDateTime.now();
+//      获取本月的起始日期和结束日期
+        LocalDate currentDate = LocalDate.now();
+        LocalDate firstDayOfMonth = currentDate.withDayOfMonth(1);
+        LocalDate lastDayOfMonth = currentDate.withDayOfMonth(currentDate.lengthOfMonth());
 
-        // 计算一年前的日期时间
-        LocalDateTime oneYearAgo = currentDateTime.minusYears(1);
-
-        //获取一年内所有的订单数据
+//      设置查询条件
         LambdaQueryWrapper<Order> lqw = new LambdaQueryWrapper<>();
         lqw.eq(Order::getCustomerId, id)
-                .ge(Order::getCreateTime, oneYearAgo)
-                .le(Order::getCreateTime, currentDateTime);
+                .ge(Order::getCreateTime, LocalDateTime.of(firstDayOfMonth, LocalTime.MIN))
+                .le(Order::getCreateTime, LocalDateTime.of(lastDayOfMonth, LocalTime.MAX));
+
         List<Order> orders = orderMapper.selectList(lqw);
 
 
-//        1. 年总成交额
-        Integer[] targetStatus1 = {1, 2, 3, 4, 5}; // 目标订单状态
-        double totalAmountPerYear = 0.0;
+//        1. 本月总成交额     本月订单(非作废，非返场)的总成交额
+        Integer[] targetStatus = {1, 2, 3, 4, 5}; // 目标订单状态
+        double totalAmount = 0.0;
         for (Order order : orders) {
-            if (Arrays.asList(targetStatus1).contains(order.getStatus())) {
-                totalAmountPerYear += order.getAmount();
+            if (Arrays.asList(targetStatus).contains(order.getStatus())) {
+                totalAmount += order.getAmount();
             }
         }
-        customerDto.setTotalAmountPerYear(totalAmountPerYear);
+        customerDto.setTotalAmount(totalAmount);
 
-//        2. 现存订单额   （目前未完成(非作废，非返场)的订单额度）
-        Integer[] targetStatus2 = {1, 2, 3, 4}; // 目标订单状态
-        double totalAmountCurrent = 0.0;
-        for (Order order : orders) {
-            if (Arrays.asList(targetStatus2).contains(order.getStatus())) {
-                totalAmountCurrent += order.getAmount();
-            }
-        }
-        customerDto.setTotalAmountCurrent(totalAmountCurrent);
 
-//      3.已出货额    目前未完成(非作废，非返场)的订单 订单金额*出货进度
-        Integer[] targetStatus3 = {1, 2, 3, 4}; // 目标订单状态
+//      2.本月已出货额    本月订单(非作废，非返场)的出货额度
         double totalAmountDelivered = 0.0;
         for (Order order : orders) {
-            if (Arrays.asList(targetStatus3).contains(order.getStatus())) {
-                totalAmountDelivered += order.getAmount() * order.getDeliveryProgress() / 100;
+            if (Arrays.asList(targetStatus).contains(order.getStatus())) {
+                totalAmountDelivered += order.getTotalDelivered();
             }
         }
         customerDto.setTotalAmountDelivered(totalAmountDelivered);
 
-//      4.欠款额度    (待回款状态下) 现存订单额度-已回金额
-        Integer[] targetStatus4 = {4}; // 目标订单状态
-        double totalPayment4Completed = 0.0;
-        double totalAmount4Completed = 0.0;
-        for (Order order : orders) {
-            if (Arrays.asList(targetStatus4).contains(order.getStatus())) {
-                totalAmount4Completed += order.getAmount();
-                totalPayment4Completed += order.getTotalPayment();
-            }
-        }
-        customerDto.setTotalAmountDebt4Completed(totalAmount4Completed-totalPayment4Completed);
-
-//      5.总支付金额       现存订单已回金额
-        Integer[] targetStatus5 = {1, 2, 3, 4}; // 目标订单状态
+//      3.总支付金额       本月订单(非作废，非返场)的总已回金额
         double totalPayment = 0.0;
         for (Order order : orders) {
-            if (Arrays.asList(targetStatus5).contains(order.getStatus())) {
+            if (Arrays.asList(targetStatus).contains(order.getStatus())) {
                 totalPayment += order.getTotalPayment();
             }
         }
         customerDto.setTotalAmountPayment(totalPayment);
 
-//      6.总待支付金额    现存订单额度-已回金额
-        double totalAmountDebt = customerDto.getTotalAmountCurrent() - totalPayment;
-        customerDto.setTotalAmountDebt(totalAmountDebt);
+//      4.本月欠款金额    本月订单(非作废，非返场)总交付额-已回金额
+        customerDto.setTotalAmountDebt(totalAmountDelivered-totalPayment);
+
 
         return customerDto;
     }

@@ -32,17 +32,26 @@ public class CustomerDto  implements Serializable {
 
     private String note;
 
-    private Double totalAmountPerYear;
+//    private Double totalAmountPerYear;
+//
+//    private Double totalAmountCurrent;
+//
+//    private Double totalAmountDelivered;
+//
+//    private Double totalAmountDebt4Completed;
+//
+//    private Double totalAmountPayment;
+//
+//    private Double totalAmountDebt;
 
-    private Double totalAmountCurrent;
+    private Double totalAmount;
 
     private Double totalAmountDelivered;
-
-    private Double totalAmountDebt4Completed;
 
     private Double totalAmountPayment;
 
     private Double totalAmountDebt;
+
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

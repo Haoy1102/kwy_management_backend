@@ -15,4 +15,6 @@ public interface PurchaseRecordService extends IService<PurchaseRecord> {
     IPage<PurchaseRecord> getPageSimple(Long materialInfoId);
 
     IPage<PurchaseRecord> getPage(int currentPage, int pageSize, PurchaseRecord record);
+
+    Double getAcountThisMonth();
 }

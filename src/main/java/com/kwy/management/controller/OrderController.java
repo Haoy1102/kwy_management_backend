@@ -314,7 +314,6 @@ public class OrderController {
 
     /**
      * 导出所有订单数据
-     *
      * @param
      * @return
      * @throws IOException
@@ -338,7 +337,7 @@ public class OrderController {
 
         try (ExcelWriter excelWriter = EasyExcel.write(filePath).build()) {
 
-            int pageSize = 20; // 每页的记录数
+            int pageSize = 40; // 每页的记录数
             int currentPage = 1; // 当前页码
             // 创建查询条件
             LambdaQueryWrapper<Order> orderlqw = new LambdaQueryWrapper<>();

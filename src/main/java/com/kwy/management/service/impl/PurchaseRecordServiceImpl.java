@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kwy.management.dto.AccountDto;
 import com.kwy.management.entity.*;
 import com.kwy.management.mapper.*;
 import com.kwy.management.service.PurchaseRecordService;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 
 /**
  * @author haoy
@@ -131,5 +135,22 @@ public class PurchaseRecordServiceImpl extends ServiceImpl<PurchaseRecordMapper,
         IPage page = new Page(currentPage, pageSize);
         purchaseRecordMapper.selectPage(page, lqw);
         return page;
+    }
+
+    @Override
+    public Double getAcountThisMonth() {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime firstDayOfMonth = currentDateTime.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime lastDayOfMonth = currentDateTime.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+
+        LambdaQueryWrapper<PurchaseRecord> lqw = new LambdaQueryWrapper<>();
+        lqw.ge(PurchaseRecord::getCreateTime, firstDayOfMonth)
+                .le(PurchaseRecord::getCreateTime, lastDayOfMonth);
+        List<PurchaseRecord> records = purchaseRecordMapper.selectList(lqw);
+        double totalAmountExpend=0.0;
+        for (PurchaseRecord record:records){
+            totalAmountExpend+=record.getTotalAmount();
+        }
+        return totalAmountExpend;
     }
 }

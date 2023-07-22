@@ -42,6 +42,8 @@ public class Order implements Serializable {
 
     private Double amount;
 
+    private Double totalDelivered;
+
     private Integer deliveryProgress;
 
     private Double totalPayment;

@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author haoy
@@ -30,7 +32,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping("/login")
-    public R<Employee> login(HttpServletRequest request, @RequestBody Employee employee) {
+    public R<Employee> login(HttpServletRequest request, HttpServletResponse response, @RequestBody Employee employee) {
                 /*
         1、md5加密处理
         2、根据页面提交的用户名username查询数据库
@@ -63,6 +65,7 @@ public class EmployeeController {
 //        6、登录成功，将员工id存入Session并返回登录成功结果
         request.getSession().setAttribute("employeeId", emp.getId());
         request.getSession().setAttribute("employeeName", emp.getName());
+
         return R.success(emp);
     }
 

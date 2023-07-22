@@ -86,7 +86,7 @@ public class GoodsController {
     public R<Boolean> goodsOut(@RequestBody GoodsOutForm outForm){
         return goodsService.goodsOut(outForm)?
                 R.success("出库成功"):
-                R.error("出库失败！数据不同步，自动刷新",Code.SYSTEM_ERR);
+                R.error("出库失败！数据不同步或数量不足，自动刷新",Code.SYSTEM_ERR);
     }
 
     @PutMapping("/records")

@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.kwy.management.comon.BaseContext;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
+import com.kwy.management.entity.Employee;
+import com.kwy.management.service.EmployeeService;
 import com.kwy.management.utils.TokenUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.*;
@@ -24,8 +27,12 @@ import java.io.IOException;
 @WebFilter(filterName = "loginCheckFilter", urlPatterns = "/*")
 public class LoginCheckFilter implements Filter {
 
+    @Autowired
+    private EmployeeService employeeService;
+
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
-    private static final TokenUtil tokenUtil=new TokenUtil();
+    private static final TokenUtil tokenUtil = new TokenUtil();
+
     /*
       1、荻取本次情求的URI
       2、判断本次情状是否需要处理
@@ -60,16 +67,34 @@ public class LoginCheckFilter implements Filter {
         }
 
 //        4.检查是否存在登录状态的标识（例如token或session）
-//        if (isLoggedIn(request)) {
         if (null!=request.getSession().getAttribute("employeeId")){
+//        if (false) {
             // 已登录，放行请求
             Long employeeId = (Long) request.getSession().getAttribute("employeeId");
-            String employeeName=(String) request.getSession().getAttribute("employeeName");
+            String employeeName = (String) request.getSession().getAttribute("employeeName");
             log.info("用户{}已登陆", employeeName);
             BaseContext.setCurrentId(employeeId);
             BaseContext.setCurrentUserName(employeeName);
             chain.doFilter(request, response);
         } else {
+            //如果cookie中有这两个数据 设置Session
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("employeeId")) {
+                        Long employeeId = Long.parseLong(cookie.getValue());
+                        Employee employee = employeeService.getById(employeeId);
+                        String employeeName = employee.getName();
+                        request.getSession().setAttribute("employeeId", employeeId);
+                        request.getSession().setAttribute("employeeName", employeeName);
+                        log.info("用户{}已登录", employeeName);
+                        BaseContext.setCurrentId(employeeId);
+                        BaseContext.setCurrentUserName(employeeName);
+                        chain.doFilter(request, response);
+                        return;
+                    }
+                }
+            }
             // 未登录
             log.info("用户未登陆");
             response.getWriter().write(JSON.toJSONString(R.error("身份认证超时，请重新登录", Code.LOGIN_FAILED)));
@@ -93,7 +118,6 @@ public class LoginCheckFilter implements Filter {
     }
 
     /**
-     *
      * @param request
      * @return
      */
