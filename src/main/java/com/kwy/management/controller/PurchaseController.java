@@ -1,14 +1,34 @@
 package com.kwy.management.controller;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
-import com.kwy.management.entity.MaterialInfo;
-import com.kwy.management.entity.PurchaseRecord;
+import com.kwy.management.entity.*;
+import com.kwy.management.entity.ExcleData.*;
 import com.kwy.management.service.PurchaseRecordService;
+import com.kwy.management.utils.NumberConverterUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author haoy
@@ -55,5 +75,53 @@ public class PurchaseController {
     public R<IPage<PurchaseRecord>> getPage(@PathVariable int currentPage, @PathVariable int pageSize,PurchaseRecord record){
         IPage<PurchaseRecord> page= purchaseRecordService.getPage(currentPage,pageSize,record);
         return R.success(page);
+    }
+
+    @GetMapping("/printData")
+    public ResponseEntity<Resource> checkBills(String startDate, String endDate) throws FileNotFoundException {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localStartDate = LocalDate.parse(startDate, formatter);
+        LocalDate localEndDate = LocalDate.parse(endDate, formatter);
+
+        LambdaQueryWrapper<PurchaseRecord> orderLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        orderLambdaQueryWrapper
+                .ge(PurchaseRecord::getCreateDate, localStartDate)
+                .le(PurchaseRecord::getCreateDate, localEndDate);
+
+        List<PurchaseRecord> records = purchaseRecordService.list(orderLambdaQueryWrapper);
+
+        String[] statusLabels = {"","新鲜", "临期", "尽快使用"};
+
+        List<PurchaseDataDemo> dataDemos = new ArrayList<>();
+
+        for (PurchaseRecord record:records){
+            PurchaseDataDemo purchaseDataDemo = new PurchaseDataDemo();
+            BeanUtils.copyProperties(record,purchaseDataDemo);
+            purchaseDataDemo.setStatusLabel(statusLabels[record.getStatus()]);
+            dataDemos.add(purchaseDataDemo);
+        }
+
+        String fileName = String.format("purRecord_%s.xlsx", System.currentTimeMillis());
+        String filePath = "src/main/resources/stastic/temporary/" + fileName;
+
+        try (ExcelWriter excelWriter = EasyExcel.write(filePath,PurchaseDataDemo.class).build()) {
+
+            WriteSheet writeSheet = EasyExcel.writerSheet("采购记录").build();
+            excelWriter.write(dataDemos, writeSheet);
+            excelWriter.finish();
+        }
+
+        File file = new File(filePath);
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 }

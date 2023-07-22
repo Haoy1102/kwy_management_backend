@@ -7,17 +7,16 @@ import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kwy.management.comon.Code;
 import com.kwy.management.comon.R;
 import com.kwy.management.dto.OrderAddDto;
 import com.kwy.management.dto.OrderDetailsBatchDeliverDto;
 import com.kwy.management.dto.OrderDetailsDeliverDto;
-import com.kwy.management.entity.ExcleData.DemoData;
-import com.kwy.management.entity.ExcleData.FillData;
-import com.kwy.management.entity.ExcleData.OrderDemoData;
-import com.kwy.management.entity.ExcleData.OrderDetailDemoData;
+import com.kwy.management.entity.ExcleData.*;
 import com.kwy.management.entity.Order;
 import com.kwy.management.entity.OrderDetail;
+import com.kwy.management.entity.PurchaseRecord;
 import com.kwy.management.service.OrderDetailService;
 import com.kwy.management.service.OrderService;
 import com.kwy.management.service.ProductOverviewService;
@@ -34,12 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -90,6 +89,7 @@ public class OrderController {
 
     /**
      * 返回订单页面
+     *
      * @param currentPage
      * @param pageSize
      * @param order
@@ -108,6 +108,7 @@ public class OrderController {
 
     /**
      * 返回客户一年的订单数据
+     *
      * @param customerId
      * @return
      */
@@ -119,6 +120,7 @@ public class OrderController {
 
     /**
      * 查询订单内容
+     *
      * @param orderId
      * @return
      */
@@ -132,6 +134,7 @@ public class OrderController {
 
     /**
      * 订单内容出货
+     *
      * @param deliverDto
      * @return
      */
@@ -161,6 +164,7 @@ public class OrderController {
 
     /**
      * 订单内容批量出货
+     *
      * @param batchDeliverDto
      * @return
      */
@@ -216,6 +220,7 @@ public class OrderController {
 
     /**
      * 编辑单条orderDetail操作
+     *
      * @param detail
      * @return
      */
@@ -238,6 +243,7 @@ public class OrderController {
 
     /**
      * 删除单条orderDetail操作
+     *
      * @param id
      * @return
      */
@@ -262,6 +268,7 @@ public class OrderController {
 
     /**
      * 返回订单的Excel
+     *
      * @param orderId
      * @return
      * @throws IOException
@@ -289,6 +296,118 @@ public class OrderController {
             FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
             excelWriter.fill(orderDetails, fillConfig, writeSheet);
             excelWriter.fill(orderDemoData, writeSheet);
+            excelWriter.finish();
+        }
+
+        File file = new File(filePath);
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
+    /**
+     * 导出所有订单数据
+     *
+     * @param
+     * @return
+     * @throws IOException
+     */
+    @GetMapping("/printData")
+    public ResponseEntity<Resource> checkBills(String startDate, String endDate) throws FileNotFoundException {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localStartDate = LocalDate.parse(startDate, formatter);
+        LocalDate localEndDate = LocalDate.parse(endDate, formatter);
+
+        LocalDateTime localStartDateTime = localStartDate.atStartOfDay();
+        LocalDateTime localEndDateTime = localEndDate.atStartOfDay().plusDays(1); // 加一天，包括结束日期当天
+
+        String fileName = String.format("orderRecord_%s.xlsx", System.currentTimeMillis());
+        String filePath = "src/main/resources/stastic/temporary/" + fileName;
+
+
+        String[] statusLabels = {"","未制作", "制作中", "部分交付", "待回款", "完成", "返厂", "作废"};
+        String[] isDeliveredLabels = {"未发货", "发货"};
+
+        try (ExcelWriter excelWriter = EasyExcel.write(filePath).build()) {
+
+            int pageSize = 20; // 每页的记录数
+            int currentPage = 1; // 当前页码
+            // 创建查询条件
+            LambdaQueryWrapper<Order> orderlqw = new LambdaQueryWrapper<>();
+            orderlqw.ge(Order::getCreateDate, localStartDate)
+                    .le(Order::getCreateDate, localEndDate);
+
+            while (true) {
+                // 创建分页对象
+                Page<Order> page = new Page<>(currentPage, pageSize);
+                // 执行分页查询
+                IPage<Order> resultPage = orderService.page(page, orderlqw);
+                // 获取当前页的数据列表
+                List<Order> orders = resultPage.getRecords();
+                ArrayList<OrderDemo> demos = new ArrayList<>();
+
+                for (Order order : orders) {
+                    OrderDemo demo = new OrderDemo();
+                    BeanUtils.copyProperties(order, demo);
+                    demo.setStatusLabel(statusLabels[order.getStatus()]);
+                    demos.add(demo);
+                }
+
+                // 处理当前页的数据，进行分次写入操作
+//                try (ExcelWriter excelWriter = EasyExcel.write(fileName, OrderDetailDemo.class).build()) {
+                WriteSheet writeSheet = EasyExcel.writerSheet(0, "订单记录").head(OrderDemo.class).build();
+                excelWriter.write(demos, writeSheet);
+//                }
+                // 判断是否还有下一页
+                if (currentPage >= resultPage.getPages()) {
+                    break;
+                }
+                // 更新当前页码
+                currentPage++;
+
+            }
+
+            currentPage = 1; // 当前页码
+            // 创建查询条件
+            LambdaQueryWrapper<OrderDetail> detaillqw = new LambdaQueryWrapper<>();
+            detaillqw.ge(OrderDetail::getCreateTime, localStartDateTime)
+                    .le(OrderDetail::getCreateTime, localEndDateTime);
+
+            while (true) {
+                // 创建分页对象
+                Page<OrderDetail> page = new Page<>(currentPage, pageSize);
+                // 执行分页查询
+                IPage<OrderDetail> resultPage = orderDetailService.page(page, detaillqw);
+                // 获取当前页的数据列表
+                List<OrderDetail> orderDetails = resultPage.getRecords();
+                ArrayList<OrderDetailDemo> detailDemos = new ArrayList<>();
+
+                for (OrderDetail detail : orderDetails) {
+                    OrderDetailDemo orderDetailDemo = new OrderDetailDemo();
+                    BeanUtils.copyProperties(detail, orderDetailDemo);
+                    orderDetailDemo.setIsDeliveredLabel(isDeliveredLabels[detail.getIsDelivered()]);
+                    detailDemos.add(orderDetailDemo);
+                }
+                // 处理当前页的数据，进行分次写入操作
+//                try (ExcelWriter excelWriter = EasyExcel.write(fileName).build()) {
+                WriteSheet writeSheet = EasyExcel.writerSheet(1, "订单明细记录").head(OrderDetailDemo.class).build();
+                excelWriter.write(detailDemos, writeSheet);
+//                }
+                // 判断是否还有下一页
+                if (currentPage >= resultPage.getPages()) {
+                    break;
+                }
+                // 更新当前页码
+                currentPage++;
+            }
             excelWriter.finish();
         }
 
