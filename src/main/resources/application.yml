@@ -5,7 +5,7 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
   global-config:
     db-config:
       id-type: auto
@@ -25,14 +25,14 @@ spring:
       username: haoy
       password: Hy011102
 server:
-  port: 80
+  port: 82
 logging:
   logback:
     rollingpolicy:
       max-file-size: 10MB
       file-name-pattern: server.%d.%i.log
   level:
-    root: error
+    root: info
   file:
     name: server.log
 
@@ -58,6 +58,7 @@ spring:
 #      password: Hy011102..
 server:
   port: 80
+
 
 myapp:
   file-path: src/main/resources/stastic/temporary/
