@@ -55,6 +55,7 @@ public class LoginCheckFilter implements Filter {
                 "/api/users/logout",
                 "/api/employees/login",
                 "/api/employees/login",
+                "/hello",
 //                "/api/**"
         };
 

@@ -1,0 +1,13 @@
+# 开发环境
+spring:
+  profiles: dev
+  application:
+    name: management
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://${server.ip}:${mysql.port}/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${db.username}
+      password: ${db.password}
+server:
+  port: 82

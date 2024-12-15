@@ -1,7 +1,9 @@
 # 应用环境
 spring:
   profiles:
-    active: pro
+    active: dev
+  config:
+    import: classpath:secret.properties
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
@@ -12,56 +14,7 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
       table-prefix: 'tb_'
----
-# 生产环境
-spring:
-  profiles: pro
-  application:
-    name: management
-  datasource:
-    druid:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://rm-cn-uax3bb9ng0006uo.rwlb.rds.aliyuncs.com:3306/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: haoy
-      password: Hy011102
-server:
-  port: 82
-logging:
-  logback:
-    rollingpolicy:
-      max-file-size: 10MB
-      file-name-pattern: server.%d.%i.log
-  level:
-    root: info
-  file:
-    name: server.log
-
 myapp:
   file-path: temporary/
   template-order-path: template/order.xlsx
   template-checkForm-path: template/checkForm.xlsx
-
----
-# 开发环境
-spring:
-  profiles: dev
-  application:
-    name: management
-  datasource:
-    druid:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://rm-cn-uax3bb9ng0006uo.rwlb.rds.aliyuncs.com:3306/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-      username: haoy
-      password: Hy011102
-#      url: jdbc:mysql://localhost:3306/kwy?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
-#      username: root
-#      password: Hy011102..
-server:
-  port: 80
-
-
-myapp:
-  file-path: src/main/resources/stastic/temporary/
-  template-order-path: src/main/resources/stastic/formDemo/order.xlsx
-  template-checkForm-path: src/main/resources/stastic/formDemo/checkForm.xlsx
-

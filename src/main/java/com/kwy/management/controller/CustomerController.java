@@ -22,7 +22,6 @@ import com.kwy.management.service.OrderService;
 import com.kwy.management.service.PaymentDetailService;
 import com.kwy.management.utils.NumberConverterUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +31,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.FileInputStream;

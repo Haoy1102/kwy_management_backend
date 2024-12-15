@@ -1,0 +1,35 @@
+# /usr/local/bin/docker-compose -f /docs/dev-ops/environment/environment-docker-compose-2.4.yml up -d
+#version: '3.8'
+# docker-compose -f docker-compose-app.yml up -d
+# 你需要修改system为你自身系统的仓库名
+services:
+  management-backend:
+    container_name: management-backend
+    image: haoy77/management-backend:1.0
+    restart: always
+    ports:
+      - 82:82
+    environment:
+      - APP_CONFIG_CROSS_ORIGIN=*
+      - SPRING_PROFILES_ACTIVE=staging
+    volumes:
+      - ./log:/data/log
+    networks:
+      - my-network
+
+  management-front:
+    container_name: management-front
+    image: haoy77/management-front:1.0
+    restart: always
+    environment:
+      - VUE_APP_API_URL=http://management-backend:82
+    depends_on:
+      - management-backend
+    networks:
+      - my-network
+    ports:
+      - 8746:8080
+
+networks:
+  my-network:
+    driver: bridge
