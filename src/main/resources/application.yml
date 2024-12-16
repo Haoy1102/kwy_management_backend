@@ -1,7 +1,7 @@
 # 应用环境
 spring:
   profiles:
-    active: dev
+    active: ${SPRING_PROFILE:dev}
   config:
     import: classpath:secret.properties
 mybatis-plus:

@@ -7,7 +7,6 @@ ENV PARAMS=""
 ENV myapp.file-path=/app/temporary/
 ENV myapp.template-order-path=/app/template/order.xlsx
 ENV myapp.template-checkForm-path=/app/template/checkForm.xlsx
-ENV spring.profiles.active=staging
 # 时区
 ENV TZ=PRC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
